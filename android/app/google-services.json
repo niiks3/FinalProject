@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "756478174874",
+    "project_id": "finalvenety",
+    "storage_bucket": "finalvenety.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:756478174874:android:f14bed75f6a75d82762123",
+        "android_client_info": {
+          "package_name": "com.example.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5H6R0VR_gG-RKChtBA7CYPFgV54_C2UU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
