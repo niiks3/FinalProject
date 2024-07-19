@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'profile_screen.dart'; // Ensure this path is correct
+import 'profile_screen.dart';
 
 class LoginSignupView extends StatefulWidget {
   const LoginSignupView({super.key});
@@ -102,206 +102,221 @@ class _LoginSignupViewState extends State<LoginSignupView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login/Signup'),
-      ),
+      backgroundColor: const Color(0xfff2f5fc),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 16.0),
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3), // changes position of shadow
-                  ),
-                ],
+          padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Image.asset(
+                'assets/onboardicon.png',
+                height: 200,
+                fit: BoxFit.contain,
               ),
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20), // Space for an image (if needed)
-
-                    // First Name and Last Name text fields (only in Sign Up)
-                    if (isSignUp) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: myRoundedTextField(
-                              hintText: 'First Name',
-                              controller: firstNameController,
-                              validator: (input) {
-                                if (input!.isEmpty) {
-                                  return 'First Name is required.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: myRoundedTextField(
-                              hintText: 'Last Name',
-                              controller: lastNameController,
-                              validator: (input) {
-                                if (input!.isEmpty) {
-                                  return 'Last Name is required.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+              const SizedBox(height: 30),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3), // changes position of shadow
                       ),
-                      const SizedBox(height: 16),
                     ],
+                  ),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 20), // Space for an image (if needed)
 
-                    // Email text field
-                    myRoundedTextField(
-                      hintText: 'Email',
-                      controller: emailController,
-                      validator: (input) {
-                        if (input!.isEmpty) {
-                          return 'Email is required.';
-                        }
-                        if (!input.contains('@')) {
-                          return 'Email is invalid.';
-                        }
-                        return null;
-                      },
-                    ),
+                        // First Name and Last Name text fields (only in Sign Up)
+                        if (isSignUp) ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                child: myRoundedTextField(
+                                  hintText: 'First Name',
+                                  controller: firstNameController,
+                                  validator: (input) {
+                                    if (input!.isEmpty) {
+                                      return 'First Name is required.';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: myRoundedTextField(
+                                  hintText: 'Last Name',
+                                  controller: lastNameController,
+                                  validator: (input) {
+                                    if (input!.isEmpty) {
+                                      return 'Last Name is required.';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
 
-                    const SizedBox(height: 16),
-
-                    // Username text field
-                    if (isSignUp)
-                      myRoundedTextField(
-                        hintText: 'Username',
-                        controller: usernameController,
-                        validator: (input) {
-                          if (input!.isEmpty) {
-                            return 'Username is required.';
-                          }
-                          return null;
-                        },
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    // Password text field
-                    myRoundedTextField(
-                      hintText: 'Password',
-                      obscureText: true,
-                      controller: passwordController,
-                      validator: (input) {
-                        if (input!.isEmpty) {
-                          return 'Password is required.';
-                        }
-                        if (input.length < 6) {
-                          return 'Password should be 6+ characters.';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Confirm Password text field (only shown during sign up)
-                    if (isSignUp)
-                      myRoundedTextField(
-                        hintText: 'Confirm Password',
-                        obscureText: true,
-                        controller: confirmPasswordController,
-                        validator: (input) {
-                          if (input!.isEmpty) {
-                            return 'Confirm password is required.';
-                          }
-                          if (input != passwordController.text) {
-                            return 'Passwords do not match.';
-                          }
-                          return null;
-                        },
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    MaterialButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          if (isSignUp) {
-                            _signup();
-                          } else {
-                            _login();
-                          }
-                        }
-                      },
-                      color: Colors.blue,
-                      minWidth: double.infinity,
-                      height: 50,
-                      child: Text(
-                        isSignUp ? 'Sign Up' : 'Login',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        // Email text field
+                        myRoundedTextField(
+                          hintText: 'Email',
+                          controller: emailController,
+                          validator: (input) {
+                            if (input!.isEmpty) {
+                              return 'Email is required.';
+                            }
+                            if (!input.contains('@')) {
+                              return 'Email is invalid.';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                    ),
 
-                    const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          isSignUp = !isSignUp;
-                        });
-                      },
-                      child: Text(
-                        isSignUp ? 'Already have an account? Login' : 'Create Account',
-                        style: const TextStyle(
-                          fontSize: 16,
+                        // Username text field
+                        if (isSignUp)
+                          myRoundedTextField(
+                            hintText: 'Username',
+                            controller: usernameController,
+                            validator: (input) {
+                              if (input!.isEmpty) {
+                                return 'Username is required.';
+                              }
+                              return null;
+                            },
+                          ),
+
+                        const SizedBox(height: 16),
+
+                        // Password text field
+                        myRoundedTextField(
+                          hintText: 'Password',
+                          obscureText: true,
+                          controller: passwordController,
+                          validator: (input) {
+                            if (input!.isEmpty) {
+                              return 'Password is required.';
+                            }
+                            if (input.length < 6) {
+                              return 'Password should be 6+ characters.';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Confirm Password text field (only shown during sign up)
+                        if (isSignUp)
+                          myRoundedTextField(
+                            hintText: 'Confirm Password',
+                            obscureText: true,
+                            controller: confirmPasswordController,
+                            validator: (input) {
+                              if (input!.isEmpty) {
+                                return 'Confirm password is required.';
+                              }
+                              if (input != passwordController.text) {
+                                return 'Passwords do not match.';
+                              }
+                              return null;
+                            },
+                          ),
+
+                        const SizedBox(height: 16),
+
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              if (isSignUp) {
+                                _signup();
+                              } else {
+                                _login();
+                              }
+                            }
+                          },
                           color: Colors.blue,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    MaterialButton(
-                      onPressed: _googleSignInMethod,
-                      color: Colors.white,
-                      elevation: 2,
-                      minWidth: double.infinity,
-                      height: 50,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/google.png', height: 24),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Sign In with Google',
-                            style: TextStyle(
-                              fontSize: 18,
+                          minWidth: double.infinity,
+                          height: 50,
+                          child: Text(
+                            isSignUp ? 'Sign Up' : 'Login',
+                            style: const TextStyle(
+                              fontSize: 22,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                              color: Colors.white,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              isSignUp = !isSignUp;
+                            });
+                          },
+                          child: Text(
+                            isSignUp ? 'Already have an account? Login' : 'Create Account',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.blue,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        MaterialButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          onPressed: _googleSignInMethod,
+                          color: Colors.white,
+                          elevation: 2,
+                          minWidth: double.infinity,
+                          height: 50,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset('assets/google.png', height: 24),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Sign In with Google',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

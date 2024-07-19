@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
 import 'views/onboarding_screen.dart';
 import 'views/login_signup_view.dart';
 import 'views/profile_screen.dart';
@@ -12,7 +11,7 @@ import 'views/events screen/new_event_screen.dart';
 import 'views/event_space_search_page.dart';
 import 'views/event_space_details_screen.dart';
 import 'views/events screen/event_detail_screen.dart';
-import 'views/event_space_bid_management.dart'; // Import the new screen
+import 'views/event_space_bid_management.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: _buildTheme(Brightness.light),
       home: const OnBoardingScreen(),
