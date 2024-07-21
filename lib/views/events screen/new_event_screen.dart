@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class NewEventScreen extends StatefulWidget {
   @override
@@ -137,26 +138,51 @@ class _NewEventScreenState extends State<NewEventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create New Event'),
+        title: Text(
+          'Create New Event',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         elevation: 4,
         shadowColor: Colors.blue.withOpacity(0.5),
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
       ),
-      body: Column(
+      body: Stack(
         children: [
-          _buildStepIndicator(),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: _onPageChanged,
-              children: [
-                _buildEventInfoPage(),
-                _buildTimingPage(),
-                _buildOptionsPage(),
-                _buildCustomizePage(),
-              ],
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xff283048), Color(0xff859398)],
+                stops: [0, 1],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
-          _buildNavigationButtons(),
+          Column(
+            children: [
+              _buildStepIndicator(),
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  children: [
+                    _buildEventInfoPage(),
+                    _buildTimingPage(),
+                    _buildOptionsPage(),
+                    _buildCustomizePage(),
+                  ],
+                ),
+              ),
+              _buildNavigationButtons(),
+            ],
+          ),
         ],
       ),
     );
@@ -184,7 +210,12 @@ class _NewEventScreenState extends State<NewEventScreen> {
       padding: EdgeInsets.all(16),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            colors: [Color(0xff0066cc), Color(0xff66ccff)],
+            stops: [0, 1],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -199,41 +230,35 @@ class _NewEventScreenState extends State<NewEventScreen> {
           padding: EdgeInsets.all(16),
           child: ListView(
             children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Event Name'),
-              ),
-              TextField(
-                controller: typeController,
-                decoration: InputDecoration(labelText: 'Event Type'),
-              ),
-              TextField(
-                controller: venueController,
-                decoration: InputDecoration(labelText: 'Venue'),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: InputDecoration(labelText: 'Phone'),
-              ),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
-              ),
-              TextField(
-                controller: detailsController,
-                decoration: InputDecoration(labelText: 'Details'),
-              ),
-              TextField(
-                controller: urlController,
-                decoration: InputDecoration(labelText: 'Event URL'),
-              ),
+              _buildRoundedTextField(controller: nameController, labelText: 'Event Name'),
+              _buildRoundedTextField(controller: typeController, labelText: 'Event Type'),
+              _buildRoundedTextField(controller: venueController, labelText: 'Venue'),
+              _buildRoundedTextField(controller: phoneController, labelText: 'Phone'),
+              _buildRoundedTextField(controller: emailController, labelText: 'Email'),
+              _buildRoundedTextField(controller: detailsController, labelText: 'Details'),
+              _buildRoundedTextField(controller: urlController, labelText: 'Event URL'),
               if (isPaidEvent)
-                TextField(
-                  controller: priceController,
-                  decoration: InputDecoration(labelText: 'Event Price'),
-                  keyboardType: TextInputType.number,
-                ),
+                _buildRoundedTextField(controller: priceController, labelText: 'Event Price', keyboardType: TextInputType.number),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoundedTextField({required TextEditingController controller, required String labelText, TextInputType keyboardType = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: labelText,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
           ),
         ),
       ),
@@ -242,122 +267,170 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildTimingPage() {
     return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.all(16),
+    child: Container(
+    decoration: BoxDecoration(
+    gradient: LinearGradient(
+    colors: [Color(0xff0066cc), Color(0xff66ccff)],
+    stops: [0, 1],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    ),
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: [
+    BoxShadow(
+    color: Colors.grey.withOpacity(0.5),
+    spreadRadius: 3,
+    blurRadius: 7,
+    offset: Offset(0, 3),
+    ),
+    ],
+    ),
+    child: Padding(
+    padding: EdgeInsets.all(16),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Text(
+    'Select Date and Time',
+    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+        color: Colors.white),
+    ),
+      SizedBox(height: 16),
+      Row(
         children: [
-          Text(
-            'Select Date and Time',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectDate(context),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      eventDate != null
-                          ? DateFormat.yMMMd().format(eventDate!)
-                          : 'Select Date',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _selectDate(context),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  eventDate != null
+                      ? DateFormat.yMMMd().format(eventDate!)
+                      : 'Select Date',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
-            ],
-          ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectTime(context, true),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      startTime != null
-                          ? startTime!.format(context)
-                          : 'Start Time',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _selectTime(context, false),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      endTime != null ? endTime!.format(context) : 'End Time',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
+      SizedBox(height: 16),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _selectTime(context, true),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  startTime != null
+                      ? startTime!.format(context)
+                      : 'Start Time',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _selectTime(context, false),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  endTime != null ? endTime!.format(context) : 'End Time',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ],
+    ),
+    ),
+    ),
     );
   }
 
   Widget _buildOptionsPage() {
     return Padding(
       padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Options',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xff0066cc), Color(0xff66ccff)],
+            stops: [0, 1],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          SizedBox(height: 16),
-          SwitchListTile(
-            title: Text('Allow Virtual Participation'),
-            value: allowVirtual,
-            onChanged: (value) {
-              setState(() {
-                allowVirtual = value;
-              });
-            },
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 3,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Options',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: 16),
+              SwitchListTile(
+                title: Text('Allow Virtual Participation', style: TextStyle(color: Colors.white)),
+                value: allowVirtual,
+                onChanged: (value) {
+                  setState(() {
+                    allowVirtual = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: Text('Open for RSVP', style: TextStyle(color: Colors.white)),
+                value: openRsvp,
+                onChanged: (value) {
+                  setState(() {
+                    openRsvp = value;
+                  });
+                },
+              ),
+              SwitchListTile(
+                title: Text('Paid Event', style: TextStyle(color: Colors.white)),
+                value: isPaidEvent,
+                onChanged: (value) {
+                  setState(() {
+                    isPaidEvent = value;
+                  });
+                },
+              ),
+            ],
           ),
-          SwitchListTile(
-            title: Text('Open for RSVP'),
-            value: openRsvp,
-            onChanged: (value) {
-              setState(() {
-                openRsvp = value;
-              });
-            },
-          ),
-          SwitchListTile(
-            title: Text('Paid Event'),
-            value: isPaidEvent,
-            onChanged: (value) {
-              setState(() {
-                isPaidEvent = value;
-              });
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -365,20 +438,50 @@ class _NewEventScreenState extends State<NewEventScreen> {
   Widget _buildCustomizePage() {
     return Padding(
       padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Customize',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xff0066cc), Color(0xff66ccff)],
+            stops: [0, 1],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          SizedBox(height: 16),
-          // Add any additional customization options here
-          ElevatedButton(
-            onPressed: _submitForm,
-            child: Text('Create Event'),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 3,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Customize',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: 16),
+              // Add any additional customization options here
+              Center(
+                child: ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Color(0xff0066cc), padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: Text('Create Event'),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -392,20 +495,44 @@ class _NewEventScreenState extends State<NewEventScreen> {
           if (_currentPage > 0)
             ElevatedButton(
               onPressed: _onPreviousPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff0066cc),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               child: Text('Previous'),
             ),
           if (_currentPage < 3)
             ElevatedButton(
               onPressed: _onNextPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff0066cc),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               child: Text('Next'),
             ),
           if (_currentPage == 3)
             ElevatedButton(
               onPressed: _submitForm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xff0066cc),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
               child: Text('Submit'),
             ),
         ],
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: NewEventScreen(),
+  ));
 }

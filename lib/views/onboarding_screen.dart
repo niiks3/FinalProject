@@ -105,6 +105,7 @@ class OnBoardingScreen extends StatelessWidget {
                               return Container(
                                 padding: EdgeInsets.all(16),
                                 height: 200,
+                                width: 500,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -115,7 +116,7 @@ class OnBoardingScreen extends StatelessWidget {
                                       },
                                       child: const Text('Login as Event organizer'),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: 25),
                                     ElevatedButton(
                                       onPressed: () {
                                         Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginSignupView()));

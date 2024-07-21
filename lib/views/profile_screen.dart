@@ -44,11 +44,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [const Color(0xff274560), Colors.blue.shade300],
+                colors: [Color(0xff283048), Color(0xff859398)],
+                stops: [0, 1],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
+
               ),
             ),
           ),
@@ -59,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: Colors.blue.shade800.withOpacity(0.3),
+                color: const Color(0xff283048).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -71,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 200,
               height: 500,
               decoration: BoxDecoration(
-                color: Colors.blue.shade800.withOpacity(0.3),
+                color: Colors.blue.shade800.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -82,19 +84,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       bottomNavigationBar: ClipRRect(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(50),
-          ),
-          child: BottomNavigationBar(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(50),
+        ),
+        child: BottomNavigationBar(
 
           items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-      label: 'Profile',
-    ),
-    BottomNavigationBarItem(              icon: Icon(Icons.event),
-      label: 'Events',
-    ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+            BottomNavigationBarItem(              icon: Icon(Icons.event),
+              label: 'Events',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.attach_money),
               label: 'Payouts',
@@ -104,17 +106,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: 'Settings',
             ),
           ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.black,
-            unselectedItemColor: Colors.white,
-            backgroundColor: Colors.blue,
-            elevation: 5,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            showUnselectedLabels: false,
-            iconSize: 30,
-            selectedIconTheme: const IconThemeData(size: 40),
-          ),
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.white,
+          backgroundColor: const Color(0xff283048),
+          elevation: 5,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+          showUnselectedLabels: false,
+          iconSize: 30,
+          selectedIconTheme: const IconThemeData(size: 40),
+        ),
       ),
     );
   }
@@ -202,7 +204,7 @@ class ProfileDetails extends StatelessWidget {
                     Card(
                       elevation: 1,
                       color: Colors.blueGrey,
-                      child: Container(
+                      child: SizedBox(
                         //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -219,7 +221,7 @@ class ProfileDetails extends StatelessWidget {
                                     height: double.maxFinite,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
-                                      color: Colors.greenAccent,
+                                      color: const Color(0xff283048),
                                     ),
                                   ),
                                   SizedBox(
@@ -257,7 +259,7 @@ class ProfileDetails extends StatelessWidget {
                     Card(
                       elevation: 1,
                       color: Colors.blueGrey,
-                      child: Container(
+                      child: SizedBox(
                         //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -274,7 +276,7 @@ class ProfileDetails extends StatelessWidget {
                                     height: double.maxFinite,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
-                                      color: Colors.greenAccent,
+                                      color: const Color(0xff283048),
                                     ),
                                   ),
                                   SizedBox(
@@ -312,7 +314,7 @@ class ProfileDetails extends StatelessWidget {
                     Card(
                       elevation: 1,
                       color: Colors.blueGrey,
-                      child: Container(
+                      child: SizedBox(
                         //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -328,7 +330,7 @@ class ProfileDetails extends StatelessWidget {
                                     height: double.maxFinite,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
-                                      color: Colors.greenAccent,
+                                      color: const Color(0xff283048),
                                     ),
                                   ),
                                   SizedBox(
@@ -395,33 +397,42 @@ class ProfileDetails extends StatelessWidget {
                   ],
 
                 ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
+                child: InkWell( // Wrap with InkWell
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()), // Replace with your actual screen
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade600,
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Analytics',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          child: const Text(
+                            'Analytics',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.left,
                           ),
-                          textAlign: TextAlign.left,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+
 
               ),
             ),
@@ -435,33 +446,42 @@ class ProfileDetails extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child:  Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
+                child: InkWell( // Wrap with InkWell
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()), // Replace with your actual screen
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade600,
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Search Event Spaces',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          child: const Text(
+                            'Search Event Spaces',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.left,
                           ),
-                          textAlign: TextAlign.left,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+
 
               ),
             ),
@@ -474,40 +494,46 @@ class ProfileDetails extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child:  Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
+                child: InkWell( // Wrap with InkWell
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()), // Replace with your actual screen
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade600,
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Manage bids',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          child: const Text(
+                            'Manage bids',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.left,
                           ),
-                          textAlign: TextAlign.left,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
-              ),
-            ),
 
 
 
-            /*const SizedBox(height: 50),
+                /*const SizedBox(height: 50),
             _buildInfoCard('Total Events', totalEvents.toString(), context),
             const SizedBox(height: 16),
             _buildInfoCard('Amount Earned', '\$${amountEarned.toStringAsFixed(2)}', context),
@@ -536,7 +562,7 @@ class ProfileDetails extends StatelessWidget {
             }
             ),
             */
-          ],
+              ))],
         ),
 
       ),
@@ -551,7 +577,7 @@ class ProfileDetails extends StatelessWidget {
         height: 200,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xff283048),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
