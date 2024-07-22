@@ -84,17 +84,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       bottomNavigationBar: ClipRRect(
+
         borderRadius: const BorderRadius.all(
           Radius.circular(50),
         ),
         child: BottomNavigationBar(
+
 
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Profile',
             ),
-            BottomNavigationBarItem(              icon: Icon(Icons.event),
+            BottomNavigationBarItem(icon: Icon(Icons.event),
               label: 'Events',
             ),
             BottomNavigationBarItem(
@@ -205,6 +207,7 @@ class ProfileDetails extends StatelessWidget {
                       elevation: 1,
                       color: Colors.blueGrey,
                       child: SizedBox(
+
                         //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
@@ -260,7 +263,6 @@ class ProfileDetails extends StatelessWidget {
                       elevation: 1,
                       color: Colors.blueGrey,
                       child: SizedBox(
-                        //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
                         child: Row(
@@ -346,13 +348,16 @@ class ProfileDetails extends StatelessWidget {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
+                                        textAlign: TextAlign.right,
                                       ),
                                       Text(
                                         "(GHc0.00)",
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.white,
+
                                         ),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ],
                                   ),
@@ -386,6 +391,10 @@ class ProfileDetails extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: MediaQuery.of(context).size.height * 0.3,
                 decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage('https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png'),
+                      fit: BoxFit.cover
+                  ),
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
@@ -401,7 +410,7 @@ class ProfileDetails extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()), // Replace with your actual screen
+                      MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
                     );
                   },
                   child: Stack(
@@ -425,7 +434,7 @@ class ProfileDetails extends StatelessWidget {
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
@@ -444,13 +453,16 @@ class ProfileDetails extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: MediaQuery.of(context).size.height * 0.3,
                 decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: NetworkImage('https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg'),
+                      fit: BoxFit.cover),
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: InkWell( // Wrap with InkWell
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()), // Replace with your actual screen
+                      MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()),
                     );
                   },
                   child: Stack(
@@ -474,7 +486,7 @@ class ProfileDetails extends StatelessWidget {
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
@@ -492,13 +504,16 @@ class ProfileDetails extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: MediaQuery.of(context).size.height * 0.3,
                 decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
+                      fit: BoxFit.cover),
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: InkWell( // Wrap with InkWell
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()), // Replace with your actual screen
+                      MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
                     );
                   },
                   child: Stack(
@@ -522,46 +537,13 @@ class ProfileDetails extends StatelessWidget {
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: TextAlign.left,
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-
-
-
-
-                /*const SizedBox(height: 50),
-            _buildInfoCard('Total Events', totalEvents.toString(), context),
-            const SizedBox(height: 16),
-            _buildInfoCard('Amount Earned', '\$${amountEarned.toStringAsFixed(2)}', context),
-            const SizedBox(height: 16),
-            _buildInfoCard('Upcoming Events', upcomingEvents.toString(), context),
-            const SizedBox(height: 16),
-            _buildInfoCard('Analytics', 'View', context, onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
-              );
-            }),
-            const SizedBox(height: 16),
-            _buildInfoCard('Search Event Spaces', 'Search', context, onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()),
-              );
-            }),
-            const SizedBox(height: 16),
-            _buildInfoCard('Manage Bids', 'Manage', context, onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
-              );
-            }
-            ),
-            */
               ))],
         ),
 

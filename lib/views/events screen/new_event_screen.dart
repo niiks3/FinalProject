@@ -496,7 +496,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
             ElevatedButton(
               onPressed: _onPreviousPage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff0066cc),
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -507,7 +507,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
             ElevatedButton(
               onPressed: _onNextPage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff0066cc),
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
