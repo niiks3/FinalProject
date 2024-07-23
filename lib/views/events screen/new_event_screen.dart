@@ -26,7 +26,6 @@ class _NewEventScreenState extends State<NewEventScreen> {
   DateTime? eventDate;
   TimeOfDay? startTime;
   TimeOfDay? endTime;
-
   bool allowVirtual = false;
   bool openRsvp = false;
   bool isPaidEvent = false;
@@ -64,7 +63,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
   void _onNextPage() {
     if (_currentPage < 3) {
       _pageController.nextPage(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.ease,
       );
     }
@@ -73,7 +72,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
   void _onPreviousPage() {
     if (_currentPage > 0) {
       _pageController.previousPage(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.ease,
       );
     }
@@ -90,7 +89,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User not logged in')),
+          const SnackBar(content: Text('User not logged in')),
         );
         return;
       }
@@ -122,14 +121,14 @@ class _NewEventScreenState extends State<NewEventScreen> {
       await FirebaseFirestore.instance.collection('events').doc(eventId).set(event);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Event created successfully!')),
+        const SnackBar(content: Text('Event created successfully!')),
       );
 
       Navigator.of(context).pop();
     } catch (e) {
       print('Error saving event: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create event.')),
+        const SnackBar(content: Text('Failed to create event.')),
       );
     }
   }
@@ -147,7 +146,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
         elevation: 4,
         shadowColor: Colors.blue.withOpacity(0.5),
         backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(30),
           ),
@@ -193,7 +192,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(4, (index) {
         return Container(
-          margin: EdgeInsets.all(4),
+          margin: const EdgeInsets.all(4),
           width: _currentPage == index ? 12 : 8,
           height: _currentPage == index ? 12 : 8,
           decoration: BoxDecoration(
@@ -207,10 +206,10 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildEventInfoPage() {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Color(0xff0066cc), Color(0xff66ccff)],
             stops: [0, 1],
             begin: Alignment.topLeft,
@@ -222,12 +221,12 @@ class _NewEventScreenState extends State<NewEventScreen> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 3,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: ListView(
             children: [
               _buildRoundedTextField(controller: nameController, labelText: 'Event Name'),
@@ -267,10 +266,10 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildTimingPage() {
     return Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
     child: Container(
     decoration: BoxDecoration(
-    gradient: LinearGradient(
+    gradient: const LinearGradient(
     colors: [Color(0xff0066cc), Color(0xff66ccff)],
     stops: [0, 1],
     begin: Alignment.topLeft,
@@ -282,28 +281,28 @@ class _NewEventScreenState extends State<NewEventScreen> {
     color: Colors.grey.withOpacity(0.5),
     spreadRadius: 3,
     blurRadius: 7,
-    offset: Offset(0, 3),
+    offset: const Offset(0, 3),
     ),
     ],
     ),
     child: Padding(
-    padding: EdgeInsets.all(16),
+    padding: const EdgeInsets.all(16),
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-    Text(
+    const Text(
     'Select Date and Time',
     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
         color: Colors.white),
     ),
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       Row(
         children: [
           Expanded(
             child: GestureDetector(
               onTap: () => _selectDate(context),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey),
@@ -313,14 +312,14 @@ class _NewEventScreenState extends State<NewEventScreen> {
                   eventDate != null
                       ? DateFormat.yMMMd().format(eventDate!)
                       : 'Select Date',
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
           ),
         ],
       ),
-      SizedBox(height: 16),
+      const SizedBox(height: 16),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -328,7 +327,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
             child: GestureDetector(
               onTap: () => _selectTime(context, true),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey),
@@ -338,17 +337,17 @@ class _NewEventScreenState extends State<NewEventScreen> {
                   startTime != null
                       ? startTime!.format(context)
                       : 'Start Time',
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: GestureDetector(
               onTap: () => _selectTime(context, false),
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey),
@@ -356,7 +355,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                 ),
                 child: Text(
                   endTime != null ? endTime!.format(context) : 'End Time',
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
@@ -372,10 +371,10 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildOptionsPage() {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Color(0xff0066cc), Color(0xff66ccff)],
             stops: [0, 1],
             begin: Alignment.topLeft,
@@ -387,22 +386,22 @@ class _NewEventScreenState extends State<NewEventScreen> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 3,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Options',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               SwitchListTile(
-                title: Text('Allow Virtual Participation', style: TextStyle(color: Colors.white)),
+                title: const Text('Allow Virtual Participation', style: TextStyle(color: Colors.white)),
                 value: allowVirtual,
                 onChanged: (value) {
                   setState(() {
@@ -411,7 +410,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                 },
               ),
               SwitchListTile(
-                title: Text('Open for RSVP', style: TextStyle(color: Colors.white)),
+                title: const Text('Open for RSVP', style: TextStyle(color: Colors.white)),
                 value: openRsvp,
                 onChanged: (value) {
                   setState(() {
@@ -420,7 +419,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                 },
               ),
               SwitchListTile(
-                title: Text('Paid Event', style: TextStyle(color: Colors.white)),
+                title: const Text('Paid Event', style: TextStyle(color: Colors.white)),
                 value: isPaidEvent,
                 onChanged: (value) {
                   setState(() {
@@ -437,10 +436,10 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildCustomizePage() {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Color(0xff0066cc), Color(0xff66ccff)],
             stops: [0, 1],
             begin: Alignment.topLeft,
@@ -452,31 +451,31 @@ class _NewEventScreenState extends State<NewEventScreen> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 3,
               blurRadius: 7,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Customize',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Add any additional customization options here
               Center(
                 child: ElevatedButton(
                   onPressed: _submitForm,
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Color(0xff0066cc), padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    foregroundColor: Colors.white, backgroundColor: const Color(0xff0066cc), padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text('Create Event'),
+                  child: const Text('Create Event'),
                 ),
               ),
             ],
@@ -488,7 +487,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildNavigationButtons() {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -501,7 +500,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: Text('Previous'),
+              child: const Text('Previous'),
             ),
           if (_currentPage < 3)
             ElevatedButton(
@@ -512,18 +511,19 @@ class _NewEventScreenState extends State<NewEventScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: Text('Next'),
+              child: const Text('Next'),
             ),
           if (_currentPage == 3)
             ElevatedButton(
               onPressed: _submitForm,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff0066cc),
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
+
                 ),
               ),
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
         ],
       ),

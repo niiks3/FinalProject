@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'login_signup_view.dart';
+import 'space_uploader_login_signup_view.dart';
 
 class OnBoardingScreen extends StatelessWidget {
   const OnBoardingScreen({super.key});
@@ -94,40 +95,39 @@ class OnBoardingScreen extends StatelessWidget {
                       color: const Color(0xff9ED3EF),
                       elevation: 2,
                       onPressed: () {
-                        //Get.to(() => const LoginSignupView());
                         showModalBottomSheet(
-                            context: context,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(25.0)),
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(25.0),
                             ),
-                            builder: (BuildContext context) {
-                              return Container(
-                                padding: EdgeInsets.all(16),
-                                height: 200,
-                                width: 500,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginSignupView()));
-                                        // Add your first button action here
-                                      },
-                                      child: const Text('Login as Event organizer'),
-                                    ),
-                                    const SizedBox(height: 25),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context)=>const LoginSignupView()));
-                                        // Add your second button action here
-                                      },
-                                      child: const Text('Login as '),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
+                          ),
+                          builder: (BuildContext context) {
+                            return Container(
+                              padding: const EdgeInsets.all(16),
+                              height: 200,
+                              width: 500,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
+                                    },
+                                    child: const Text('Login as Normal User'),
+                                  ),
+                                  const SizedBox(height: 25),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
+                                    },
+                                    child: const Text('Login as Space Uploader'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                       },
                       child: const Text(
                         "Get Started",
@@ -138,7 +138,7 @@ class OnBoardingScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

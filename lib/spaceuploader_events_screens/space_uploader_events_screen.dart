@@ -1,14 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/views/event_space_bid_management.dart';
 import 'package:project/views/profile_screen.dart';
-import 'new_event_screen.dart';
-import 'event_analytics.dart';
-import 'view_event_screen.dart';
+import 'package:project/spaceuploader_events_screens/add_event_screen.dart';
+import 'package:project/spaceuploader_events_screens/space_uploader_event_analytics.dart';
+import 'package:project/spaceuploader_events_screens/manage_spaces_screen.dart';
 
-class EventsScreen extends StatelessWidget {
-  const EventsScreen({super.key});
+class SpaceUploaderEventsScreen extends StatelessWidget {
+  const SpaceUploaderEventsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +36,7 @@ class EventsScreen extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
                           Navigator.push(context,
-                            MaterialPageRoute(builder: (context) =>  const ProfileScreen(email: AutofillHints.email)),
+                            MaterialPageRoute(builder: (context) => const ProfileScreen(email: AutofillHints.email)),
                           );
                         },
                       ),
@@ -55,10 +54,7 @@ class EventsScreen extends StatelessWidget {
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
                           );
-
-                          // Handle category selection
                         },
-
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
@@ -85,41 +81,38 @@ class EventsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     children: <Widget>[
                       EventCard(
-                        date: 'New Event',
-                        title: 'Create a new event',
-                        location: 'Tap to create',
-                        imageUrl: 'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg', // Replace with actual image URL
+                        date: 'Add Spaces',
+                        title: 'Add a new event',
+                        location: 'Tap to add',
+                        imageUrl: 'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg',
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => NewEventScreen()),
+                            MaterialPageRoute(builder: (context) => AddEventScreen()),
                           );
                         },
                       ),
                       EventCard(
-                        date: 'View Events',
-                        title: 'View all events',
-                        location: 'Tap to view',
+                        date: 'Manage Spaces',
+                        title: 'Manage your spaces',
+                        location: 'Tap to manage',
                         imageUrl: 'https://cdn.pixabay.com/photo/2018/05/31/11/54/celebration-3443779_960_720.jpg',
-                        // Replace with actual image URL
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ViewEventsScreen()),
+                            MaterialPageRoute(builder: (context) => const ManageSpacesScreen()),
                           );
                         },
-
-
                       ),
                       EventCard(
                         date: 'Event Analytics',
                         title: 'View event analytics',
                         location: 'Tap to view analytics',
-                        imageUrl: 'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png', // Replace with actual image URL
+                        imageUrl: 'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png',
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
+                            MaterialPageRoute(builder: (context) => const SpaceUploaderEventAnalyticsScreen()),
                           );
                         },
                       ),
