@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:project/views/space_uploader_login_signup_view.dart';
 import 'profile_screen.dart';
 
 class LoginSignupView extends StatefulWidget {
@@ -273,6 +274,48 @@ class _LoginSignupViewState extends State<LoginSignupView> {
                             setState(() {
                               isSignUp = !isSignUp;
                             });
+
+                              showModalBottomSheet(
+                                context: context,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(25.0),
+                                  ),
+                                ),
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(16),
+                                    height: 200,
+                                    width: MediaQuery.of(context).size.width,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
+                                          },
+                                          child: const Text('Register as Normal User'),
+                                        ),
+                                        const SizedBox(height: 25),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
+                                          },
+                                          child: const Text('Register as Space Uploader'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+
+
                           },
                           child: Text(
                             isSignUp ? 'Already have an account? Login' : 'Create Account',

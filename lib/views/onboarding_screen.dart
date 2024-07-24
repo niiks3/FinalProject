@@ -106,11 +106,14 @@ class OnBoardingScreen extends StatelessWidget {
                             return Container(
                               padding: const EdgeInsets.all(16),
                               height: 200,
-                              width: 500,
+                              width: MediaQuery.of(context).size.width,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                    ),
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
                                     },
@@ -118,6 +121,9 @@ class OnBoardingScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 25),
                                   ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                    ),
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
                                     },
@@ -129,6 +135,7 @@ class OnBoardingScreen extends StatelessWidget {
                           },
                         );
                       },
+
                       child: const Text(
                         "Get Started",
                         style: TextStyle(
