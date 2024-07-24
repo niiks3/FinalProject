@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +15,7 @@ import 'views/event_space_search_page.dart';
 import 'views/event_space_details_screen.dart';
 import 'views/events screen/event_detail_screen.dart';
 import 'views/event_space_bid_management.dart';
-import 'spaceuploader_events_screens/add_event_screen.dart';
+import 'spaceuploader_events_screens/add_space_screen.dart'; // Changed to add_space_screen.dart
 import 'spaceuploader_events_screens//manage_spaces_screen.dart';
 import 'spaceuploader_events_screens//space_uploader_event_analytics.dart';
 
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
         }),
         GetPage(name: '/manage-bids', page: () => const EventSpaceBidManagementScreen()),
         GetPage(name: '/space-uploader-login-signup', page: () => const SpaceUploaderLoginSignupView()),
-        GetPage(name: '/add-event', page: () => AddEventScreen()),
+        GetPage(name: '/add-space', page: () => AddSpaceScreen()), // Changed to AddSpaceScreen
         GetPage(name: '/manage-spaces', page: () => const ManageSpacesScreen()),
         GetPage(name: '/space-uploader-event-analytics', page: () => const SpaceUploaderEventAnalyticsScreen()),
       ],

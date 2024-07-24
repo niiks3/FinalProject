@@ -92,7 +92,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
               label: 'Profile',
             ),
             BottomNavigationBarItem(icon: Icon(Icons.event),
-              label: 'Events',
+              label: 'My Spaces',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.attach_money),

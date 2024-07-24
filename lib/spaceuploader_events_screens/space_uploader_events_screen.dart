@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project/views/event_space_bid_management.dart';
 import 'package:project/views/profile_screen.dart';
-import 'package:project/spaceuploader_events_screens/add_event_screen.dart';
-import 'package:project/spaceuploader_events_screens/space_uploader_event_analytics.dart';
-import 'package:project/spaceuploader_events_screens/manage_spaces_screen.dart';
+import 'add_space_screen.dart';
+import 'manage_spaces_screen.dart';
+import 'space_uploader_event_analytics.dart';
 
 class SpaceUploaderEventsScreen extends StatelessWidget {
   const SpaceUploaderEventsScreen({super.key});
@@ -36,7 +36,7 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
                           Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const ProfileScreen(email: AutofillHints.email)),
+                            MaterialPageRoute(builder: (context) =>  const ProfileScreen(email: AutofillHints.email)),
                           );
                         },
                       ),
@@ -54,7 +54,10 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
                           );
+
+                          // Handle category selection
                         },
+
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
@@ -81,14 +84,14 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     children: <Widget>[
                       EventCard(
-                        date: 'Add Spaces',
-                        title: 'Add a new event',
+                        date: 'Add Space',
+                        title: 'Add a new space',
                         location: 'Tap to add',
-                        imageUrl: 'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg',
+                        imageUrl: 'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg', // Replace with actual image URL
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => AddEventScreen()),
+                            MaterialPageRoute(builder: (context) => AddSpaceScreen()),
                           );
                         },
                       ),
@@ -97,6 +100,7 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
                         title: 'Manage your spaces',
                         location: 'Tap to manage',
                         imageUrl: 'https://cdn.pixabay.com/photo/2018/05/31/11/54/celebration-3443779_960_720.jpg',
+                        // Replace with actual image URL
                         onTap: () {
                           Navigator.push(
                             context,
@@ -105,10 +109,10 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
                         },
                       ),
                       EventCard(
-                        date: 'Event Analytics',
-                        title: 'View event analytics',
+                        date: 'Space Analytics',
+                        title: 'View space analytics',
                         location: 'Tap to view analytics',
-                        imageUrl: 'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png',
+                        imageUrl: 'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png', // Replace with actual image URL
                         onTap: () {
                           Navigator.push(
                             context,
