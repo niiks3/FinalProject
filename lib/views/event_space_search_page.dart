@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -93,9 +92,8 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                   SizedBox(height: 20),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance.collection('event_spaces').snapshots(),
+                      stream: FirebaseFirestore.instance.collection('spaces').snapshots(),
                       builder: (context, snapshot) {
-
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return Center(child: CircularProgressIndicator());
                         }
@@ -110,10 +108,20 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                           itemCount: eventSpaces.length,
                           itemBuilder: (context, index) {
                             var eventSpace = eventSpaces[index];
+                            var data = eventSpace.data() as Map<String, dynamic>?;
+
+                            if (data == null) {
+                              return SizedBox.shrink();
+                            }
+
+                            var name = data['title']?.toString() ?? 'Unnamed Space';
+                            var description = data['description']?.toString() ?? 'No description available';
+                            var imageUrl = data['imageUrl']?.toString() ?? 'https://via.placeholder.com/150';
+
                             return _buildEventCard(
-                              name: eventSpace['name'],
-                              capacity: int.tryParse(eventSpace['capacity'].toString()) ?? 0,
-                              imageUrl: 'https://via.placeholder.com/150', // Replace with actual image URL
+                              name: name,
+                              description: description,
+                              imageUrl: imageUrl,
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -139,7 +147,7 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
 
   Widget _buildEventCard({
     required String name,
-    required int capacity,
+    required String description,
     required String imageUrl,
     required VoidCallback onTap,
   }) {
@@ -161,7 +169,7 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                   fontSize: 18,
                 ),
               ),
-              subtitle: Text('Capacity: $capacity'),
+              subtitle: Text(description),
             ),
           ],
         ),

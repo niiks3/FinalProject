@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:html' as html;
+import "dart:html" as html;
 import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -70,7 +70,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       print('No user is signed in.');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please sign in to upload a space'),
       ));
       Get.to(() => const LoginSignupView());
@@ -78,7 +78,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
     }
 
     if (_imageFile == null && _nativeImageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select an image')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an image')));
       return;
     }
 
@@ -119,7 +119,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
         'description': _descriptionController.text,
         'imageUrl': imageUrl,
         'startTime': Timestamp.now(),
-        'endTime': Timestamp.fromDate(DateTime.now().add(Duration(days: 7))),
+        'endTime': Timestamp.fromDate(DateTime.now().add(const Duration(days: 7))),
         'startingBid': double.parse(_startingBidController.text),
         'highestBid': {
           'bidderId': null,
@@ -128,7 +128,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
         'createdBy': user!.uid,
       });
       print('Space details saved to Firestore');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Space uploaded successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Space uploaded successfully')));
       Navigator.pop(context);
     } catch (e) {
       print('Failed to save space details: $e');
@@ -139,36 +139,36 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add New Space')),
+      appBar: AppBar(title: const Text('Add New Space')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
               TextField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
               ),
               TextField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
               ),
               TextField(
                 controller: _startingBidController,
-                decoration: InputDecoration(labelText: 'Starting Bid'),
+                decoration: const InputDecoration(labelText: 'Starting Bid'),
                 keyboardType: TextInputType.number,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               _imageFileName == null
-                  ? Text('No image selected.')
+                  ? const Text('No image selected.')
                   : Text(_imageFileName!),
               ElevatedButton(
                 onPressed: _pickImage,
-                child: Text('Pick Image'),
+                child: const Text('Pick Image'),
               ),
               ElevatedButton(
                 onPressed: _uploadSpace,
-                child: Text('Upload Space'),
+                child: const Text('Upload Space'),
               ),
             ],
           ),
