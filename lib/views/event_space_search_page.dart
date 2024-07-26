@@ -13,6 +13,7 @@ class EventSpaceSearchScreen extends StatefulWidget {
 class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
   int _selectedIndex = 0;
   List<String> _categories = ['All', 'Frequent', 'Favourites'];
+
   String _searchQuery = '';
 
   @override
@@ -42,6 +43,11 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.1),
@@ -53,11 +59,6 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      onChanged: (query) {
-                        setState(() {
-                          _searchQuery = query.toLowerCase();
-                        });
-                      },
                     ),
                   ),
                   Padding(
@@ -110,7 +111,7 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
 
                         var eventSpaces = snapshot.data!.docs.where((doc) {
                           var data = doc.data() as Map<String, dynamic>;
-                          return data['title'].toString().toLowerCase().contains(_searchQuery);
+                          return data['title'] != null && data['title'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
                         }).toList();
 
                         return ListView.builder(
@@ -125,10 +126,7 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
 
                             var name = data['title']?.toString() ?? 'Unnamed Space';
                             var description = data['description']?.toString() ?? 'No description available';
-                            var imageUrl = data['imageUrl']?.toString() ?? '';
-
-                            // Debugging output to check imageUrl
-                            print('Image URL: $imageUrl');
+                            var imageUrl = data['imageUrls']?.first ?? 'https://via.placeholder.com/150';
 
                             return _buildEventCard(
                               name: name,
@@ -171,15 +169,18 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
         ),
         child: Column(
           children: [
-            // Displaying image with proper error handling
-            imageUrl.isNotEmpty
-                ? Image.network(
-              imageUrl,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.network('https://via.placeholder.com/150');
-              },
-            )
-                : Image.network('https://via.placeholder.com/150'),
+            Image.network(imageUrl, errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 150,
+                color: Colors.grey[200],
+                child: Center(
+                  child: Text(
+                    'Image not available',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              );
+            }),
             ListTile(
               contentPadding: EdgeInsets.all(15),
               title: Text(

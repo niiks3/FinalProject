@@ -220,7 +220,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: kIsWeb
-                                ? NetworkImage(html.Url.createObjectUrl(_webImageFiles[index]))
+                                ? NetworkImage(html.Url.createObjectUrlFromBlob(_webImageFiles[index]))
                                 : FileImage(_nativeImageFiles[index]) as ImageProvider,
                             fit: BoxFit.cover,
                           ),

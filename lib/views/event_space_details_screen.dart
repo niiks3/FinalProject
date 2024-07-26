@@ -8,24 +8,51 @@ class EventSpaceDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var eventSpaceData = eventSpace.data() as Map<String, dynamic>;
+    final data = eventSpace.data() as Map<String, dynamic>;
+    final title = data['title'] ?? 'Unnamed Space';
+    final description = data['description'] ?? 'No description available';
+    final imageUrls = (data['imageUrls'] as List<dynamic>?)?.map((url) => url.toString()).toList() ?? [];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(eventSpaceData['name']),
+        title: Text(title),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Capacity: ${eventSpaceData['capacity']}'),
-            Text('Location: ${eventSpaceData['location']}'),
-            // Add more details as needed
-            ElevatedButton(
-              onPressed: () {
-                // Logic to place a bid
-              },
-              child: Text('Place Bid'),
+            if (imageUrls.isNotEmpty)
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: imageUrls.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Image.network(imageUrls[index], fit: BoxFit.cover),
+                    );
+                  },
+                ),
+              )
+            else
+              Container(
+                height: 200,
+                color: Colors.grey,
+                child: const Center(
+                  child: Text('No Images Available'),
+                ),
+              ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
