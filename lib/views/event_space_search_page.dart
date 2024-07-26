@@ -13,6 +13,7 @@ class EventSpaceSearchScreen extends StatefulWidget {
 class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
   int _selectedIndex = 0;
   List<String> _categories = ['All', 'Frequent', 'Favourites'];
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +53,11 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
+                      onChanged: (query) {
+                        setState(() {
+                          _searchQuery = query.toLowerCase();
+                        });
+                      },
                     ),
                   ),
                   Padding(
@@ -102,7 +108,10 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                           return Center(child: Text('No event spaces available.'));
                         }
 
-                        var eventSpaces = snapshot.data!.docs;
+                        var eventSpaces = snapshot.data!.docs.where((doc) {
+                          var data = doc.data() as Map<String, dynamic>;
+                          return data['title'].toString().toLowerCase().contains(_searchQuery);
+                        }).toList();
 
                         return ListView.builder(
                           itemCount: eventSpaces.length,
@@ -116,7 +125,10 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
 
                             var name = data['title']?.toString() ?? 'Unnamed Space';
                             var description = data['description']?.toString() ?? 'No description available';
-                            var imageUrl = data['imageUrl']?.toString() ?? 'https://via.placeholder.com/150';
+                            var imageUrl = data['imageUrl']?.toString() ?? '';
+
+                            // Debugging output to check imageUrl
+                            print('Image URL: $imageUrl');
 
                             return _buildEventCard(
                               name: name,
@@ -159,7 +171,15 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
         ),
         child: Column(
           children: [
-            Image.network(imageUrl),
+            // Displaying image with proper error handling
+            imageUrl.isNotEmpty
+                ? Image.network(
+              imageUrl,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.network('https://via.placeholder.com/150');
+              },
+            )
+                : Image.network('https://via.placeholder.com/150'),
             ListTile(
               contentPadding: EdgeInsets.all(15),
               title: Text(

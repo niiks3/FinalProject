@@ -53,52 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: _selectedIndex == 0
-            ? Text(
-          '${getGreeting()} !',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        )
-            : null,
-        backgroundColor: _selectedIndex == 0 ? Colors.blueGrey : Colors.transparent,
-        centerTitle: true,
-        shape: _selectedIndex == 0
-            ? const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomRight: Radius.circular(30),
-            bottomLeft: Radius.circular(30),
-          ),
-        )
-            : null,
-        bottom: _selectedIndex == 0
-            ? const PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Welcome back, hope you\'re feeling good today',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        )
-            : null,
-      ),
       body: Stack(
         children: [
           Container(
@@ -111,31 +65,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          Positioned(
-            top: 100,
-            left: -50,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                color: const Color(0xff283048).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
+          _selectedIndex == 0
+              ? SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height:140,
+                  padding: const EdgeInsets.only(top: 50, bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey,
+                    borderRadius: const BorderRadius.only(
+                      bottomRight: Radius.circular(30),
+                      bottomLeft: Radius.circular(30),
+                    ),
+
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${getGreeting()} !',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Welcome back, hope you\'re feeling good today',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ProfileDetails(email: widget.email, greeting: getGreeting()),
+              ],
             ),
-          ),
-          Positioned(
-            top: 700,
-            right: -100,
-            child: Container(
-              width: 200,
-              height: 500,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade800.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Center(
+          )
+              : Center(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
         ],
@@ -218,364 +189,364 @@ class ProfileDetails extends StatelessWidget {
 
   Widget _buildProfileInfo(BuildContext context, int totalEvents, double amountEarned, int upcomingEvents) {
     return SingleChildScrollView(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            const SizedBox(height: 80),
-        Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-    child: SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-    Card(
-    elevation: 1,
-    color: Colors.white70,
-    child: SizedBox(
-    width: MediaQuery.of(context).size.width * 0.5,
-    height: MediaQuery.of(context).size.height * 0.1,
-    child: Row(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-    Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-    children: [
-    Container(
-    width: MediaQuery.of(context).size.width * 0.1,
-    height: double.maxFinite,
-    decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(8),
-    image: const DecorationImage(
-    image: AssetImage('assets/assets/totalevents.png'),
-    fit: BoxFit.fill,
-    ),
-    ),
-    ),
-    SizedBox(
-    width: MediaQuery.of(context).size.width * 0.01,
-    ),
-    const Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-    Text(
-    "Total Events",
-    style: TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 16,
-    ),
-    ),
-    Text(
-    "(0)",
-    style: TextStyle(
-    fontSize: 14,
-    color: Colors.black26,
-    ),
-    ),
-    ],
-    ),
-    ],
-    ),
-    )
-    ],
-    ),
-    ),
-    ),
-    Card(
-    elevation: 1,
-    color: Colors.white70,
-    child: SizedBox(
-    width: MediaQuery.of(context).size.width * 0.5,
-    height: MediaQuery.of(context).size.height * 0.1,
-    child: Row(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-    Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-    children: [
-    Container(
-    width: MediaQuery.of(context).size.width * 0.1,
-    height: double.maxFinite,
-    decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(8),
-    image: const DecorationImage(
-    image: AssetImage('assets/assets/upcoming.png'),
-    fit: BoxFit.fill,
-    ),
-    ),
-    ),
-    SizedBox(
-    width: MediaQuery.of(context).size.width * 0.01,
-    ),
-    const Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Upcoming Events",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        Text(
-          "(0)",
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.black26,
-          ),
-        ),
-      ],
-    ),
-    ],
-    ),
-    )
-    ],
-    ),
-    ),
-    ),
-      Card(
-        elevation: 1,
-        color: Colors.white70,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
-          height: MediaQuery.of(context).size.height * 0.1,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.1,
-                      height: double.maxFinite,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/assets/currency.png'),
-                          fit: BoxFit.fill,
-                        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 80),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Card(
+                    elevation: 1,
+                    color: Colors.white70,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  height: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: const DecorationImage(
+                                      image: AssetImage('assets/assets/totalevents.png'),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.01,
+                                ),
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Total Events",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      "(0)",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black26,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.01,
+                  ),
+                  Card(
+                    elevation: 1,
+                    color: Colors.white70,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  height: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: const DecorationImage(
+                                      image: AssetImage('assets/assets/upcoming.png'),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.01,
+                                ),
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Upcoming Events",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      "(0)",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black26,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                    const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Amount Earned",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                  ),
+                  Card(
+                    elevation: 1,
+                    color: Colors.white70,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  height: double.maxFinite,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: const DecorationImage(
+                                      image: AssetImage('assets/assets/currency.png'),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.01,
+                                ),
+                                const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Amount Earned",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    Text(
+                                      "(GHc0.00)",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black26,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          textAlign: TextAlign.right,
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 1,
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Container(
+              color: Colors.white,
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              "Event Operations",
+              style: TextStyle(color: Colors.black),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          SizedBox(
+            height: 1,
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Container(
+              color: Colors.white,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.3,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  image: NetworkImage('https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png'),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade600,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(16),
+                          ),
                         ),
-                        Text(
-                          "(GHc0.00)",
+                        child: const Text(
+                          'Analytics',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black26,
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ],
-    ),
-    ),
-        ),
-              SizedBox(
-                height: 1,
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Container(
-                  color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.3,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  image: NetworkImage('https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg'),
+                  fit: BoxFit.cover,
                 ),
+                borderRadius: BorderRadius.circular(25),
               ),
-              const Padding(
-                padding: EdgeInsets.all(20),
-                child: Text(
-                  "Event Operations",
-                  style: TextStyle(color: Colors.black),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              SizedBox(
-                height: 1,
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Container(
-                  color: Colors.white,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade600,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Search Event Spaces',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ],
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade600,
-                              borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(16),
-                              ),
-                            ),
-                            child: const Text(
-                              'Analytics',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade600,
-                              borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(16),
-                              ),
-                            ),
-                            child: const Text(
-                              'Search Event Spaces',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.3,
+              decoration: BoxDecoration(
+                image: const DecorationImage(
+                  image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
+                  );
+                },
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade600,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(16),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade600,
-                              borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(16),
-                              ),
-                            ),
-                            child: const Text(
-                              'Manage bids',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                        child: const Text(
+                          'Manage bids',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ],
-        ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

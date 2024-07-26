@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import "dart:html" as html;
+import 'dart:html' as html;
 import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -21,47 +21,40 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _startingBidController = TextEditingController();
-  html.File? _imageFile;
-  String? _imageFileName;
-  io.File? _nativeImageFile;
+  final TextEditingController _capacityController = TextEditingController();
+  List<html.File> _webImageFiles = [];
+  List<io.File> _nativeImageFiles = [];
+  List<String> _imageFileNames = [];
+  List<double> _uploadProgress = [];
 
-  Future<void> _pickImage() async {
-    print('Picking image...');
+  Future<void> _pickImages() async {
     if (kIsWeb) {
       html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
       uploadInput.accept = 'image/*';
+      uploadInput.multiple = true;
       uploadInput.click();
       uploadInput.onChange.listen((e) {
         final files = uploadInput.files;
         if (files != null && files.isNotEmpty) {
-          final file = files.first;
-          final reader = html.FileReader();
-          reader.readAsArrayBuffer(file);
-          reader.onLoadEnd.listen((e) {
-            setState(() {
-              _imageFile = file;
-              _imageFileName = file.name;
-              print('Image selected: $_imageFileName');
-            });
+          setState(() {
+            _webImageFiles = files.cast<html.File>();
+            _imageFileNames = files.map((file) => file.name).whereType<String>().toList();
+            _uploadProgress = List.filled(files.length, 0.0);
           });
-        } else {
-          print('No image selected.');
         }
       });
     } else {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
-        allowMultiple: false,
+        allowMultiple: true,
       );
 
       if (result != null) {
         setState(() {
-          _imageFileName = result.files.first.name;
-          _nativeImageFile = io.File(result.files.first.path!);
-          print('Image selected: $_imageFileName');
+          _nativeImageFiles = result.paths.map((path) => io.File(path!)).toList();
+          _imageFileNames = result.names.whereType<String>().toList();
+          _uploadProgress = List.filled(result.paths.length, 0.0);
         });
-      } else {
-        print('No image selected.');
       }
     }
   }
@@ -69,7 +62,6 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
   Future<void> _uploadSpace() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print('No user is signed in.');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Please sign in to upload a space'),
       ));
@@ -77,61 +69,102 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
       return;
     }
 
-    if (_imageFile == null && _nativeImageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an image')));
+    if (_webImageFiles.isEmpty && _nativeImageFiles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select images')));
       return;
     }
 
-    final imageName = DateTime.now().millisecondsSinceEpoch.toString();
-    final storageRef = FirebaseStorage.instance.ref().child('spaces/$imageName');
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Uploading...'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ..._imageFileNames.map((name) {
+                int index = _imageFileNames.indexOf(name);
+                return Column(
+                  children: [
+                    Text(name),
+                    LinearProgressIndicator(
+                      value: _uploadProgress[index] / 100,
+                      minHeight: 5,
+                      backgroundColor: Colors.grey[300],
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
 
+    final List<String> imageUrls = [];
     try {
-      String imageUrl;
-      if (kIsWeb) {
-        final reader = html.FileReader();
-        reader.readAsArrayBuffer(_imageFile!);
-        await reader.onLoadEnd.first;
-        final data = reader.result as Uint8List;
-        print('Uploading image data (Web): ${data.length} bytes');
-        final uploadTask = await storageRef.putData(data);
-        imageUrl = await uploadTask.ref.getDownloadURL();
-        print('Image uploaded (Web): $imageUrl');
-        await _saveSpaceToFirestore(imageUrl);
-      } else {
-        print('Uploading image file (Mobile/Desktop)...');
-        final uploadTask = await storageRef.putFile(_nativeImageFile!);
-        imageUrl = await uploadTask.ref.getDownloadURL();
-        print('Image uploaded (Mobile/Desktop): $imageUrl');
-        await _saveSpaceToFirestore(imageUrl);
+      for (int i = 0; i < _imageFileNames.length; i++) {
+        final imageName = DateTime.now().millisecondsSinceEpoch.toString();
+        final storageRef = FirebaseStorage.instance.ref().child('spaces/$imageName');
+
+        if (kIsWeb) {
+          final reader = html.FileReader();
+          reader.readAsArrayBuffer(_webImageFiles[i]);
+          await reader.onLoadEnd.first;
+          final data = reader.result as Uint8List;
+          final uploadTask = storageRef.putData(data);
+          uploadTask.snapshotEvents.listen((event) {
+            setState(() {
+              _uploadProgress[i] = (event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100;
+            });
+          });
+          final snapshot = await uploadTask;
+          final imageUrl = await snapshot.ref.getDownloadURL();
+          imageUrls.add(imageUrl);
+        } else {
+          final uploadTask = storageRef.putFile(_nativeImageFiles[i]);
+          uploadTask.snapshotEvents.listen((event) {
+            setState(() {
+              _uploadProgress[i] = (event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100;
+            });
+          });
+          final snapshot = await uploadTask;
+          final imageUrl = await snapshot.ref.getDownloadURL();
+          imageUrls.add(imageUrl);
+        }
       }
+
+      await _saveSpaceToFirestore(imageUrls);
+      Navigator.of(context).pop(); // Close the upload progress dialog
     } catch (e) {
-      print('Upload failed: $e');
+      Navigator.of(context).pop(); // Close the upload progress dialog
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
     }
   }
 
-  Future<void> _saveSpaceToFirestore(String imageUrl) async {
+  Future<void> _saveSpaceToFirestore(List<String> imageUrls) async {
     final user = FirebaseAuth.instance.currentUser;
     try {
-      print('Saving space details to Firestore...');
       await FirebaseFirestore.instance.collection('spaces').add({
         'title': _titleController.text,
         'description': _descriptionController.text,
-        'imageUrl': imageUrl,
+        'imageUrls': imageUrls,
         'startTime': Timestamp.now(),
         'endTime': Timestamp.fromDate(DateTime.now().add(const Duration(days: 7))),
         'startingBid': double.parse(_startingBidController.text),
+        'capacity': int.parse(_capacityController.text),
         'highestBid': {
           'bidderId': null,
           'amount': 0.0,
         },
         'createdBy': user!.uid,
       });
-      print('Space details saved to Firestore');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Space uploaded successfully')));
       Navigator.pop(context);
     } catch (e) {
-      print('Failed to save space details: $e');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save space details: $e')));
     }
   }
@@ -144,7 +177,77 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'File Upload',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: _pickImages,
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.cloud_upload, size: 50),
+                        const SizedBox(height: 10),
+                        const Text('Drag and Drop or Browse'),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: _imageFileNames.map((name) {
+                  int index = _imageFileNames.indexOf(name);
+                  return Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: kIsWeb
+                                ? NetworkImage(html.Url.createObjectUrl(_webImageFiles[index]))
+                                : FileImage(_nativeImageFiles[index]) as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey),
+                        ),
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _webImageFiles.removeAt(index);
+                              _nativeImageFiles.removeAt(index);
+                              _imageFileNames.removeAt(index);
+                              _uploadProgress.removeAt(index);
+                            });
+                          },
+                          child: const Icon(Icons.close, color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 20),
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title'),
@@ -158,17 +261,27 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
                 decoration: const InputDecoration(labelText: 'Starting Bid'),
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 10),
-              _imageFileName == null
-                  ? const Text('No image selected.')
-                  : Text(_imageFileName!),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Pick Image'),
+              TextField(
+                controller: _capacityController,
+                decoration: const InputDecoration(labelText: 'Capacity'),
+                keyboardType: TextInputType.number,
               ),
-              ElevatedButton(
-                onPressed: _uploadSpace,
-                child: const Text('Upload Space'),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: _uploadSpace,
+                    child: const Text('Publish'),
+                  ),
+                ],
               ),
             ],
           ),
