@@ -115,7 +115,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
         'url': urlController.text,
         'price': isPaidEvent ? double.parse(priceController.text) : 0.0,
         'userId': currentUser.uid,
-        'link': 'https://yourwebsite.com/register?eventId=$eventId',
+        'link': 'https://finalvenety.web.app/register.html?id=$eventId', // Replace with your hosting URL
       };
 
       await FirebaseFirestore.instance.collection('events').doc(eventId).set(event);
@@ -266,106 +266,106 @@ class _NewEventScreenState extends State<NewEventScreen> {
 
   Widget _buildTimingPage() {
     return Padding(
-        padding: const EdgeInsets.all(16),
-    child: Container(
-    decoration: BoxDecoration(
-    gradient: const LinearGradient(
-    colors: [Color(0xff0066cc), Color(0xff66ccff)],
-    stops: [0, 1],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-    BoxShadow(
-    color: Colors.grey.withOpacity(0.5),
-    spreadRadius: 3,
-    blurRadius: 7,
-    offset: const Offset(0, 3),
-    ),
-    ],
-    ),
-    child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-    const Text(
-    'Select Date and Time',
-    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-        color: Colors.white),
-    ),
-      const SizedBox(height: 16),
-      Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectDate(context),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  eventDate != null
-                      ? DateFormat.yMMMd().format(eventDate!)
-                      : 'Select Date',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xff0066cc), Color(0xff66ccff)],
+            stops: [0, 1],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 3,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Select Date and Time',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Text(
+                          eventDate != null
+                              ? DateFormat.yMMMd().format(eventDate!)
+                              : 'Select Date',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectTime(context, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Text(
+                          startTime != null
+                              ? startTime!.format(context)
+                              : 'Start Time',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectTime(context, false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Text(
+                          endTime != null ? endTime!.format(context) : 'End Time',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
-      const SizedBox(height: 16),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectTime(context, true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  startTime != null
-                      ? startTime!.format(context)
-                      : 'Start Time',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _selectTime(context, false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  endTime != null ? endTime!.format(context) : 'End Time',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ],
-    ),
-    ),
-    ),
     );
   }
 
