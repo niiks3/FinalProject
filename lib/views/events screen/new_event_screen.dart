@@ -115,7 +115,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
         'url': urlController.text,
         'price': isPaidEvent ? double.parse(priceController.text) : 0.0,
         'userId': currentUser.uid,
-        'link': 'https://finalvenety.web.app/register.html?id=$eventId', // Replace with your hosting URL
+        'link': 'https://finalvenety.web.app/register.html?id=$eventId',
       };
 
       await FirebaseFirestore.instance.collection('events').doc(eventId).set(event);
