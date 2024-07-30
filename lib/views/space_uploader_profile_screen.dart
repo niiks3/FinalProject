@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/spaceuploader_events_screens/space_uploader_events_screen.dart';
 import 'events screen/events_screen.dart';
 import 'Payouts/payouts_screen.dart';
 import 'settings/settings_screen.dart';
-//import 'space_uploader_space_management.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'event_space_bid_management.dart'; // Import the Manage Bids screen
 
 class SpaceUploaderProfileScreen extends StatefulWidget {
   final String email;
@@ -91,7 +91,8 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
               icon: Icon(Icons.person),
               label: 'Profile',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.event),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.event),
               label: 'My Spaces',
             ),
             BottomNavigationBarItem(
@@ -163,7 +164,7 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '${getGreeting()} !',
+              '${getGreeting()}!',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -191,7 +192,6 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                       elevation: 1,
                       color: Colors.blueGrey,
                       child: SizedBox(
-                        //create boxdecoration and add image
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: MediaQuery.of(context).size.height * 0.1,
                         child: Row(
@@ -308,6 +308,63 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.3,
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
+                    image: NetworkImage('https://cdn.pixabay.com/photo/2017/01/22/12/11/whale-2007261_1280.jpg'),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade600,
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            'Manage Bids',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -316,46 +373,45 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
 
   Widget _buildInfoCard(String title, String value, BuildContext context, {VoidCallback? onTap}) {
     return GestureDetector(
-        onTap: onTap,
-        child: Container(
+      onTap: onTap,
+      child: Container(
         width: double.infinity,
         height: 200,
         padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-    color: const Color(0xff283048),
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-    BoxShadow(
-    color: Colors.black.withOpacity(0.5),
-    spreadRadius: 2,
-    blurRadius: 2,
-    offset: Offset(0,3),
-
-    ),
-    ],
-    ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.blue,
-                ),
-              ),
-            ],
-          ),
+        decoration: BoxDecoration(
+          color: const Color(0xff283048),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 2,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

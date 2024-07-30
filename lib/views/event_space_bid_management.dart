@@ -26,24 +26,31 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('bids')
             .where('bidderId', isEqualTo: user.uid)
-            .orderBy('timestamp', descending: true)
+        // Remove the orderBy clause
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            print('No data in snapshot');
             return const Center(child: Text('No bids available.'));
           }
 
           var bids = snapshot.data!.docs;
+          print('Bids found: ${bids.length}');
 
           return ListView.builder(
             itemCount: bids.length,
             itemBuilder: (context, index) {
               var bid = bids[index];
               var bidData = bid.data() as Map<String, dynamic>;
+              print('Bid data: $bidData');
 
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
@@ -57,13 +64,21 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                     );
                   }
 
+                  if (spaceSnapshot.hasError) {
+                    return ListTile(
+                      title: Text('Error: ${spaceSnapshot.error}'),
+                    );
+                  }
+
                   if (!spaceSnapshot.hasData) {
+                    print('Space not found for bid: $bidData');
                     return const ListTile(
                       title: Text('Space not found'),
                     );
                   }
 
                   var spaceData = spaceSnapshot.data!.data() as Map<String, dynamic>;
+                  print('Space data: $spaceData');
 
                   return ListTile(
                     leading: spaceData['imageUrls'] != null && spaceData['imageUrls'].isNotEmpty
@@ -79,7 +94,9 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EventSpaceDetailsScreen(eventSpace: spaceSnapshot.data!),
+                          builder: (context) => EventSpaceDetailsScreen(
+                            eventSpace: spaceSnapshot.data!,
+                          ),
                         ),
                       );
                     },
