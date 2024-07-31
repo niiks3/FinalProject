@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/spaceuploader_events_screens/space_uploader_events_screen.dart';
+import 'package:project/spaceuploader_events_screens/uploaderbidemanagement.dart';
 import 'events screen/events_screen.dart';
 import 'Payouts/payouts_screen.dart';
 import 'settings/settings_screen.dart';
@@ -332,7 +333,7 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
+                      MaterialPageRoute(builder: (context) => const UploaderBidManagementScreen()),
                     );
                   },
                   child: Stack(
