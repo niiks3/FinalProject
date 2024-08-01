@@ -10,95 +10,115 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        backgroundColor: Colors.black, // Top bar color
+        title: const Text('Settings', style: TextStyle(color: Colors.white)), // Set text color to white
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.palette, color: Colors.blue),
-            title: const Text('Appearance'),
-            subtitle: const Text('Make Ziar\'App yours'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle appearance settings tap
-            },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1a1a2e),
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.lock, color: Colors.red),
-            title: const Text('Privacy'),
-            subtitle: const Text('Lock Ziar\'App to improve your privacy'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle privacy settings tap
-            },
-          ),
-          SwitchListTile(
-            secondary: const Icon(Icons.dark_mode, color: Colors.black),
-            title: const Text('Dark mode'),
-            subtitle: const Text('Automatic'),
-            value: true,
-            onChanged: (bool value) {
-              // Handle dark mode switch
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.info, color: Colors.purple),
-            title: const Text('About'),
-            subtitle: const Text('Learn more about Ziar\'App'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle about tap
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.feedback, color: Colors.orange),
-            title: const Text('Send Feedback'),
-            subtitle: const Text('Let us know how we can make Ziar\'App better'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle send feedback tap
-            },
-          ),
-          const Divider(height: 20, thickness: 1),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Account',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: [
+                  _buildSettingsTile(
+                    icon: Icons.block,
+                    color: Colors.grey[400]!,
+                    title: 'My Profile',
+                    onTap: () {
+                      // Handle blocked accounts tap
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildSettingsTile(
+                    icon: Icons.notifications,
+                    color: Colors.grey[400]!,
+                    title: 'Notifications',
+                    onTap: () {
+                      // Handle notifications tap
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildSettingsTile(
+                    icon: Icons.privacy_tip,
+                    color: Colors.grey[400]!,
+                    title: 'Privacy Policy',
+                    onTap: () {
+                      // Handle privacy policy tap
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildSettingsTile(
+                    icon: Icons.description,
+                    color: Colors.grey[400]!,
+                    title: 'Terms of Service',
+                    onTap: () {
+                      // Handle terms of service tap
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildSettingsTile(
+                    icon: Icons.rule,
+                    color: Colors.grey[400]!,
+                    title: 'Community Guidelines',
+                    onTap: () {
+                      // Handle community guidelines tap
+                    },
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildSettingsTile(
+                    icon: Icons.support,
+                    color: Colors.grey[400]!,
+                    title: 'Support',
+                    onTap: () {
+                      // Handle support tap
+                    },
+                  ),
+                ],
               ),
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.exit_to_app, color: Colors.blue),
-            title: const Text('Sign Out'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Log out and navigate to login screen
-              FirebaseAuth.instance.signOut();
-              Get.offAll(const LoginSignupView());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.email, color: Colors.blue),
-            title: const Text('Change email'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle change email tap
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text('Delete account'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // Handle delete account tap
-            },
-          ),
-        ],
+            const Divider(height: 20, thickness: 1, color: Colors.grey),
+            _buildSettingsTile(
+              icon: Icons.logout,
+              color: Colors.red,
+              title: 'Log out',
+              onTap: () {
+                // Log out and navigate to login screen
+                FirebaseAuth.instance.signOut();
+                Get.offAll(const LoginSignupView());
+              },
+            ),
+            const SizedBox(height: 16.0), // Add some space at the bottom
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({required IconData icon, required Color color, required String title, required Function() onTap}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        leading: Icon(icon, color: color),
+        title: Text(title, style: const TextStyle(color: Colors.white)),
+        trailing: Icon(Icons.chevron_right, color: color),
+        onTap: onTap,
       ),
     );
   }
 }
+
