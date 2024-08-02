@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:html' as html;
-import 'dart:typed_data';
 import 'dart:io' as io;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:get/get.dart';
 import 'package:project/views/login_signup_view.dart';
+
+import 'web_image_picker_stub.dart' if (dart.library.html) 'web_image_picker.dart';
 
 class AddSpaceScreen extends StatefulWidget {
   const AddSpaceScreen({super.key});
@@ -22,26 +22,17 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _startingBidController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
-  List<html.File> _webImageFiles = [];
-  List<io.File> _nativeImageFiles = [];
+  List<dynamic> _imageFiles = [];
   List<String> _imageFileNames = [];
   List<double> _uploadProgress = [];
 
   Future<void> _pickImages() async {
     if (kIsWeb) {
-      html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-      uploadInput.accept = 'image/*';
-      uploadInput.multiple = true;
-      uploadInput.click();
-      uploadInput.onChange.listen((e) {
-        final files = uploadInput.files;
-        if (files != null && files.isNotEmpty) {
-          setState(() {
-            _webImageFiles = files.cast<html.File>();
-            _imageFileNames = files.map((file) => file.name).whereType<String>().toList();
-            _uploadProgress = List.filled(files.length, 0.0);
-          });
-        }
+      final webPicker = WebImagePicker();
+      _imageFiles = await webPicker.pickImages();
+      setState(() {
+        _imageFileNames = _imageFiles.map((file) => file.name).whereType<String>().toList();
+        _uploadProgress = List.filled(_imageFiles.length, 0.0);
       });
     } else {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -51,7 +42,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
 
       if (result != null) {
         setState(() {
-          _nativeImageFiles = result.paths.map((path) => io.File(path!)).toList();
+          _imageFiles = result.paths.map((path) => io.File(path!)).toList();
           _imageFileNames = result.names.whereType<String>().toList();
           _uploadProgress = List.filled(result.paths.length, 0.0);
         });
@@ -69,7 +60,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
       return;
     }
 
-    if (_webImageFiles.isEmpty && _nativeImageFiles.isEmpty) {
+    if (_imageFiles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select images')));
       return;
     }
@@ -111,10 +102,8 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
         final storageRef = FirebaseStorage.instance.ref().child('spaces/$imageName');
 
         if (kIsWeb) {
-          final reader = html.FileReader();
-          reader.readAsArrayBuffer(_webImageFiles[i]);
-          await reader.onLoadEnd.first;
-          final data = reader.result as Uint8List;
+          final webPicker = WebImagePicker();
+          final data = await webPicker.getFileData(_imageFiles[i]);
           final uploadTask = storageRef.putData(data);
           uploadTask.snapshotEvents.listen((event) {
             setState(() {
@@ -125,7 +114,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
           final imageUrl = await snapshot.ref.getDownloadURL();
           imageUrls.add(imageUrl);
         } else {
-          final uploadTask = storageRef.putFile(_nativeImageFiles[i]);
+          final uploadTask = storageRef.putFile(_imageFiles[i] as io.File);
           uploadTask.snapshotEvents.listen((event) {
             setState(() {
               _uploadProgress[i] = (event.bytesTransferred.toDouble() / event.totalBytes.toDouble()) * 100;
@@ -220,8 +209,8 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: kIsWeb
-                                ? NetworkImage(html.Url.createObjectUrlFromBlob(_webImageFiles[index]))
-                                : FileImage(_nativeImageFiles[index]) as ImageProvider,
+                                ? NetworkImage(WebImagePicker().createObjectUrlFromBlob(_imageFiles[index]))
+                                : FileImage(_imageFiles[index] as io.File) as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -234,8 +223,7 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
                         child: GestureDetector(
                           onTap: () {
                             setState(() {
-                              _webImageFiles.removeAt(index);
-                              _nativeImageFiles.removeAt(index);
+                              _imageFiles.removeAt(index);
                               _imageFileNames.removeAt(index);
                               _uploadProgress.removeAt(index);
                             });

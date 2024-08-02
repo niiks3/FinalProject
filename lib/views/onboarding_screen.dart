@@ -16,7 +16,7 @@ class OnBoardingScreen extends StatelessWidget {
           children: [
             const Spacer(flex: 2),
             Image.asset(
-              'assets/onboardicon.png',
+              'assets/images/onboardicon.png',
               height: 300,
               fit: BoxFit.contain,
             ),

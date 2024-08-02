@@ -110,7 +110,7 @@ class _SpaceUploaderLoginSignupViewState extends State<SpaceUploaderLoginSignupV
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Image.asset(
-                    'assets/onboardicon.png',
+                    'assets/images/onboardicon.png',
                     height: 200,
                     fit: BoxFit.contain,
                   ),
@@ -298,7 +298,7 @@ class _SpaceUploaderLoginSignupViewState extends State<SpaceUploaderLoginSignupV
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('assets/google.png', height: 24),
+          Image.asset('assets/images/google.png', height: 24),
           const SizedBox(width: 12),
           const Text(
             'Sign In with Google',
