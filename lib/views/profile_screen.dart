@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBody: true, // Extend the body behind the bottom navigation bar
       body: Stack(
         children: [
           Container(
@@ -71,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   width: double.infinity,
-                  height:140,
+                  height: 140,
                   padding: const EdgeInsets.only(top: 50, bottom: 20),
                   decoration: BoxDecoration(
                     color: Colors.blueGrey,
@@ -79,7 +79,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30),
                     ),
-
                   ),
                   child: Column(
                     children: [
@@ -214,12 +213,12 @@ class ProfileDetails extends StatelessWidget {
                             child: Row(
                               children: [
                                 Container(
-                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  width: MediaQuery.of(context).size.width * 0.15,
                                   height: double.maxFinite,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     image: const DecorationImage(
-                                      image: AssetImage('assets/assets/totalevents.png'),
+                                      image: AssetImage('assets/images/totalevents.png'),
                                       fit: BoxFit.fill,
                                     ),
                                   ),
@@ -268,12 +267,12 @@ class ProfileDetails extends StatelessWidget {
                             child: Row(
                               children: [
                                 Container(
-                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  width: MediaQuery.of(context).size.width * 0.15,
                                   height: double.maxFinite,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     image: const DecorationImage(
-                                      image: AssetImage('assets/assets/upcoming.png'),
+                                      image: AssetImage('assets/images/upcoming.png'),
                                       fit: BoxFit.fill,
                                     ),
                                   ),
@@ -322,12 +321,12 @@ class ProfileDetails extends StatelessWidget {
                             child: Row(
                               children: [
                                 Container(
-                                  width: MediaQuery.of(context).size.width * 0.1,
+                                  width: MediaQuery.of(context).size.width * 0.16,
                                   height: double.maxFinite,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     image: const DecorationImage(
-                                      image: AssetImage('assets/assets/currency.png'),
+                                      image: AssetImage('assets/images/currency.png'),
                                       fit: BoxFit.fill,
                                     ),
                                   ),
@@ -376,10 +375,13 @@ class ProfileDetails extends StatelessWidget {
             ),
           ),
           const Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(15),
             child: Text(
               "Event Operations",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white),
               textAlign: TextAlign.left,
             ),
           ),
@@ -393,8 +395,8 @@ class ProfileDetails extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.3,
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.28,
               decoration: BoxDecoration(
                 image: const DecorationImage(
                   image: NetworkImage('https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png'),
@@ -434,7 +436,7 @@ class ProfileDetails extends StatelessWidget {
                         child: const Text(
                           'Analytics',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 23,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -450,8 +452,8 @@ class ProfileDetails extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.3,
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.28,
               decoration: BoxDecoration(
                 image: const DecorationImage(
                   image: NetworkImage('https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg'),
@@ -483,7 +485,7 @@ class ProfileDetails extends StatelessWidget {
                         child: const Text(
                           'Search Event Spaces',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 23,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -499,8 +501,8 @@ class ProfileDetails extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.3,
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.28,
               decoration: BoxDecoration(
                 image: const DecorationImage(
                   image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
@@ -532,7 +534,7 @@ class ProfileDetails extends StatelessWidget {
                         child: const Text(
                           'Manage bids',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 23,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),

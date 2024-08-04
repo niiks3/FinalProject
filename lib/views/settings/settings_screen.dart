@@ -28,77 +28,78 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
-                children: [
-                  _buildSettingsTile(
-                    icon: Icons.block,
-                    color: Colors.grey[400]!,
-                    title: 'My Profile',
-                    onTap: () {
-                      // Handle blocked accounts tap
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  _buildSettingsTile(
-                    icon: Icons.notifications,
-                    color: Colors.grey[400]!,
-                    title: 'Notifications',
-                    onTap: () {
-                      // Handle notifications tap
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  _buildSettingsTile(
-                    icon: Icons.privacy_tip,
-                    color: Colors.grey[400]!,
-                    title: 'Privacy Policy',
-                    onTap: () {
-                      // Handle privacy policy tap
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  _buildSettingsTile(
-                    icon: Icons.description,
-                    color: Colors.grey[400]!,
-                    title: 'Terms of Service',
-                    onTap: () {
-                      // Handle terms of service tap
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  _buildSettingsTile(
-                    icon: Icons.rule,
-                    color: Colors.grey[400]!,
-                    title: 'Community Guidelines',
-                    onTap: () {
-                      // Handle community guidelines tap
-                    },
-                  ),
-                  const SizedBox(height: 8.0),
-                  _buildSettingsTile(
-                    icon: Icons.support,
-                    color: Colors.grey[400]!,
-                    title: 'Support',
-                    onTap: () {
-                      // Handle support tap
-                    },
-                  ),
-                ],
+                child: Column(
+                  children: [
+                    _buildSettingsTile(
+                      icon: Icons.person,
+                      color: Colors.grey[400]!,
+                      title: 'My Profile',
+                      onTap: () {
+                        // Handle My Profile tap
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildSettingsTile(
+                      icon: Icons.notifications,
+                      color: Colors.grey[400]!,
+                      title: 'Notifications',
+                      onTap: () {
+                        // Handle Notifications tap
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildSettingsTile(
+                      icon: Icons.privacy_tip,
+                      color: Colors.grey[400]!,
+                      title: 'Privacy Policy',
+                      onTap: () {
+                        // Handle Privacy Policy tap
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildSettingsTile(
+                      icon: Icons.description,
+                      color: Colors.grey[400]!,
+                      title: 'Terms of Service',
+                      onTap: () {
+                        // Handle Terms of Service tap
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildSettingsTile(
+                      icon: Icons.rule,
+                      color: Colors.grey[400]!,
+                      title: 'Community Guidelines',
+                      onTap: () {
+                        // Handle Community Guidelines tap
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildSettingsTile(
+                      icon: Icons.support,
+                      color: Colors.grey[400]!,
+                      title: 'Support',
+                      onTap: () {
+                        // Handle Support tap
+                      },
+                    ),
+                    const Divider(height: 20, thickness: 1, color: Colors.grey),
+                    _buildSettingsTile(
+                      icon: Icons.logout,
+                      color: Colors.red,
+                      title: 'Log out',
+                      onTap: () {
+                        // Log out and navigate to login screen
+                        FirebaseAuth.instance.signOut();
+                        Get.offAll(const LoginSignupView());
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-            const Divider(height: 20, thickness: 1, color: Colors.grey),
-            _buildSettingsTile(
-              icon: Icons.logout,
-              color: Colors.red,
-              title: 'Log out',
-              onTap: () {
-                // Log out and navigate to login screen
-                FirebaseAuth.instance.signOut();
-                Get.offAll(const LoginSignupView());
-              },
-            ),
-            const SizedBox(height: 16.0), // Add some space at the bottom
           ],
         ),
       ),
@@ -121,4 +122,3 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
-

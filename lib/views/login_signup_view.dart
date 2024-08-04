@@ -103,13 +103,14 @@ class _LoginSignupViewState extends State<LoginSignupView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff2f5fc),
+      backgroundColor: const Color(0xffa5bbef),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 170.0, horizontal: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 60), // Add more space above the image
               Image.asset(
                 'assets/images/onboardicon.png',
                 height: 200,
@@ -275,47 +276,45 @@ class _LoginSignupViewState extends State<LoginSignupView> {
                               isSignUp = !isSignUp;
                             });
 
-                              showModalBottomSheet(
-                                context: context,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(25.0),
-                                  ),
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(25.0),
                                 ),
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    height: 200,
-                                    width: MediaQuery.of(context).size.width,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue,
-                                          ),
-                                          onPressed: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
-                                          },
-                                          child: const Text('Register as Normal User'),
+                              ),
+                              builder: (BuildContext context) {
+                                return Container(
+                                  padding: const EdgeInsets.all(16),
+                                  height: 200,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
                                         ),
-                                        const SizedBox(height: 25),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue,
-                                          ),
-                                          onPressed: () {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
-                                          },
-                                          child: const Text('Register as Space Uploader'),
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
+                                        },
+                                        child: const Text('Register as Normal User'),
+                                      ),
+                                      const SizedBox(height: 25),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
                                         ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-
-
+                                        onPressed: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
+                                        },
+                                        child: const Text('Register as Space Uploader'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
                           },
                           child: Text(
                             isSignUp ? 'Already have an account? Login' : 'Create Account',

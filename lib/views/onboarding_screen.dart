@@ -10,7 +10,7 @@ class OnBoardingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0x95C3F1FF),
+        backgroundColor: const Color(0xffa5bbef),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -112,7 +112,7 @@ class OnBoardingScreen extends StatelessWidget {
                                 children: [
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
+                                      backgroundColor: Color(0xffa5bbef),
                                     ),
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
@@ -122,7 +122,7 @@ class OnBoardingScreen extends StatelessWidget {
                                   const SizedBox(height: 25),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
+                                      backgroundColor: Color(0xffa5bbef)
                                     ),
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
