@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
 
 class NewEventScreen extends StatefulWidget {
   @override
@@ -20,7 +22,6 @@ class _NewEventScreenState extends State<NewEventScreen> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController detailsController = TextEditingController();
-  final TextEditingController urlController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
 
   DateTime? eventDate;
@@ -29,6 +30,7 @@ class _NewEventScreenState extends State<NewEventScreen> {
   bool allowVirtual = false;
   bool openRsvp = false;
   bool isPaidEvent = false;
+  Uint8List? _image;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -56,6 +58,18 @@ class _NewEventScreenState extends State<NewEventScreen> {
         } else {
           endTime = picked;
         }
+      });
+    }
+  }
+
+  void _pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        _image = result.files.single.bytes;
       });
     }
   }
@@ -112,7 +126,6 @@ class _NewEventScreenState extends State<NewEventScreen> {
         'allow_virtual': allowVirtual,
         'open_rsvp': openRsvp,
         'is_paid': isPaidEvent,
-        'url': urlController.text,
         'price': isPaidEvent ? double.parse(priceController.text) : 0.0,
         'userId': currentUser.uid,
         'link': 'https://finalvenety.web.app/register.html?id=$eventId',
@@ -235,7 +248,6 @@ class _NewEventScreenState extends State<NewEventScreen> {
               _buildRoundedTextField(controller: phoneController, labelText: 'Phone'),
               _buildRoundedTextField(controller: emailController, labelText: 'Email'),
               _buildRoundedTextField(controller: detailsController, labelText: 'Details'),
-              _buildRoundedTextField(controller: urlController, labelText: 'Event URL'),
               if (isPaidEvent)
                 _buildRoundedTextField(controller: priceController, labelText: 'Event Price', keyboardType: TextInputType.number),
             ],
@@ -253,13 +265,15 @@ class _NewEventScreenState extends State<NewEventScreen> {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: labelText,
+          labelStyle: const TextStyle(color: Colors.white),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Colors.white.withOpacity(0.1),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
         ),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -424,6 +438,9 @@ class _NewEventScreenState extends State<NewEventScreen> {
                 onChanged: (value) {
                   setState(() {
                     isPaidEvent = value;
+                    if (value) {
+                      _showPriceDialog();
+                    }
                   });
                 },
               ),
@@ -431,6 +448,32 @@ class _NewEventScreenState extends State<NewEventScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showPriceDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter Ticket Price'),
+          content: TextField(
+            controller: priceController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Ticket Price',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -467,15 +510,34 @@ class _NewEventScreenState extends State<NewEventScreen> {
               const SizedBox(height: 16),
               // Add any additional customization options here
               Center(
-                child: ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: const Color(0xff0066cc), padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _pickImage,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xff0066cc),
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text('Upload Image'),
                     ),
-                  ),
-                  child: const Text('Create Event'),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xff0066cc),
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text('Create Event'),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -495,35 +557,34 @@ class _NewEventScreenState extends State<NewEventScreen> {
             ElevatedButton(
               onPressed: _onPreviousPage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xff0066cc),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text('Previous'),
+              child: const Text('Previous', style: TextStyle(color: Colors.white)),
             ),
           if (_currentPage < 3)
             ElevatedButton(
               onPressed: _onNextPage,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xff0066cc),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text('Next'),
+              child: const Text('Next', style: TextStyle(color: Colors.white)),
             ),
           if (_currentPage == 3)
             ElevatedButton(
               onPressed: _submitForm,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xff0066cc),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
-
                 ),
               ),
-              child: const Text('Submit'),
+              child: const Text('Submit', style: TextStyle(color: Colors.white)),
             ),
         ],
       ),

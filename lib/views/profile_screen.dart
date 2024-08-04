@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'events screen/events_screen.dart';
 import 'Payouts/payouts_screen.dart';
 import 'settings/settings_screen.dart';
@@ -6,6 +7,7 @@ import 'events screen/event_analytics.dart';
 import 'package:project/views/event_space_search_page.dart';
 import 'package:project/views/event_space_bid_management.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String email;
@@ -36,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _widgetOptions = [
-      ProfileDetails(email: widget.email, greeting: getGreeting()), // Pass greeting to ProfileDetails
+      ProfileDetails(email: widget.email, greeting: getGreeting()), // Pass greeting and email to ProfileDetails
       const EventsScreen(),
       const PayoutsScreen(),
       const SettingsScreen(),
@@ -67,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _selectedIndex == 0
               ? SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 100), // Add bottom padding
             child: Column(
               children: [
                 Container(
@@ -117,8 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
+              icon: Icon(Icons.home),
+              label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.event),
@@ -149,41 +152,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class ProfileDetails extends StatelessWidget {
+class ProfileDetails extends StatefulWidget {
   final String email;
   final String greeting;
 
   const ProfileDetails({super.key, required this.email, required this.greeting});
 
   @override
+  _ProfileDetailsState createState() => _ProfileDetailsState();
+}
+
+class _ProfileDetailsState extends State<ProfileDetails> {
+  int totalEvents = 0;
+  int upcomingEvents = 0;
+  double amountEarned = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateProfileStatistics();
+  }
+
+  void _calculateProfileStatistics() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        print('No user is currently logged in');
+        return;
+      }
+
+      print('Fetching events for user ID: ${user.uid}');
+
+      QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      if (eventsSnapshot.docs.isEmpty) {
+        print('No events found for user ID: ${user.uid}');
+      } else {
+        print('Events found for user ID: ${user.uid}');
+        for (var event in eventsSnapshot.docs) {
+          print('Event data: ${event.data()}');
+        }
+      }
+
+      DateTime now = DateTime.now();
+      int upcomingEventsCount = eventsSnapshot.docs.where((event) {
+        var data = event.data() as Map<String, dynamic>;
+        return data['eventDate'] != null && data['eventDate'].toDate().isAfter(now);
+      }).length;
+
+      setState(() {
+        totalEvents = eventsSnapshot.docs.length;
+        upcomingEvents = upcomingEventsCount;
+
+        // Placeholder for amountEarned calculation, update as needed
+        amountEarned = eventsSnapshot.docs.fold(0.0, (sum, event) {
+          var data = event.data() as Map<String, dynamic>;
+          return sum + (data['amountEarned']?.toDouble() ?? 0.0);
+        });
+
+        print('Total events: $totalEvents');
+        print('Upcoming events: $upcomingEvents');
+        print('Amount earned: $amountEarned');
+      });
+    } catch (e) {
+      print('Error calculating profile statistics: $e');
+      Fluttertoast.showToast(
+        msg: "Error calculating profile statistics",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: FirebaseFirestore.instance.collection('events').where('userEmail', isEqualTo: email).get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return _buildProfileInfo(context, 0, 0.0, 0);
-        }
-
-        int totalEvents = snapshot.data!.docs.length;
-        double amountEarned = 0.0;
-        int upcomingEvents = 0;
-        DateTime now = DateTime.now();
-
-        for (var doc in snapshot.data!.docs) {
-          var data = doc.data() as Map<String, dynamic>;
-          amountEarned += data['amountEarned'] ?? 0.0;
-          if (data['eventDate'] != null && data['eventDate'].toDate().isAfter(now)) {
-            upcomingEvents += 1;
-          }
-        }
-
-        return _buildProfileInfo(context, totalEvents, amountEarned, upcomingEvents);
-      },
-    );
+    return _buildProfileInfo(context, totalEvents, amountEarned, upcomingEvents);
   }
 
   Widget _buildProfileInfo(BuildContext context, int totalEvents, double amountEarned, int upcomingEvents) {
@@ -199,398 +250,175 @@ class ProfileDetails extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Card(
-                    elevation: 1,
-                    color: Colors.white70,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.15,
-                                  height: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: const DecorationImage(
-                                      image: AssetImage('assets/images/totalevents.png'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.01,
-                                ),
-                                const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Total Events",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      "(0)",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black26,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                  _buildInfoCard(
+                    context,
+                    "Total Events",
+                    "assets/images/totalevents.png",
+                    totalEvents.toString(),
                   ),
-                  Card(
-                    elevation: 1,
-                    color: Colors.white70,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.15,
-                                  height: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: const DecorationImage(
-                                      image: AssetImage('assets/images/upcoming.png'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.01,
-                                ),
-                                const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Upcoming Events",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      "(0)",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black26,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                  _buildInfoCard(
+                    context,
+                    "Upcoming Events",
+                    "assets/images/upcoming.png",
+                    upcomingEvents.toString(),
                   ),
-                  Card(
-                    elevation: 1,
-                    color: Colors.white70,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width * 0.16,
-                                  height: double.maxFinite,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: const DecorationImage(
-                                      image: AssetImage('assets/images/currency.png'),
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.of(context).size.width * 0.01,
-                                ),
-                                const Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Amount Earned",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                    Text(
-                                      "(GHc0.00)",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black26,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildInfoCard(
+                    context,
+                    "Amount Earned",
+                    "assets/images/currency.png",
+                    "GHc${amountEarned.toStringAsFixed(2)}",
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(
-            height: 1,
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Container(
-              color: Colors.white,
-            ),
-          ),
+          const Divider(color: Colors.white, thickness: 1, indent: 50, endIndent: 50),
           const Padding(
             padding: EdgeInsets.all(15),
             child: Text(
               "Event Operations",
               style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white),
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
               textAlign: TextAlign.left,
             ),
           ),
-          SizedBox(
-            height: 1,
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Container(
-              color: Colors.white,
-            ),
+          const Divider(color: Colors.white, thickness: 1, indent: 50, endIndent: 50),
+          _buildOperationCard(
+            context,
+            'Analytics',
+            'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png',
+            const EventAnalyticsScreen(),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: MediaQuery.of(context).size.height * 0.28,
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: NetworkImage('https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png'),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EventAnalyticsScreen()),
-                  );
-                },
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
-                          ),
-                        ),
-                        child: const Text(
-                          'Analytics',
-                          style: TextStyle(
-                            fontSize: 23,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          _buildOperationCard(
+            context,
+            'Search Event Spaces',
+            'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
+            const EventSpaceSearchScreen(),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: MediaQuery.of(context).size.height * 0.28,
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: NetworkImage('https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg'),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EventSpaceSearchScreen()),
-                  );
-                },
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
-                          ),
-                        ),
-                        child: const Text(
-                          'Search Event Spaces',
-                          style: TextStyle(
-                            fontSize: 23,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              height: MediaQuery.of(context).size.height * 0.28,
-              decoration: BoxDecoration(
-                image: const DecorationImage(
-                  image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EventSpaceBidManagementScreen()),
-                  );
-                },
-                child: Stack(
-                  children: [
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade600,
-                          borderRadius: const BorderRadius.vertical(
-                            bottom: Radius.circular(16),
-                          ),
-                        ),
-                        child: const Text(
-                          'Manage bids',
-                          style: TextStyle(
-                            fontSize: 23,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          _buildOperationCard(
+            context,
+            'Manage Bids',
+            'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
+            const EventSpaceBidManagementScreen(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoCard(String title, String value, BuildContext context, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildInfoCard(BuildContext context, String title, String imagePath, String value) {
+    return Card(
+      elevation: 1,
+      color: Colors.white70,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.5,
+        height: MediaQuery.of(context).size.height * 0.1,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.15,
+                    height: double.maxFinite,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: AssetImage(imagePath),
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black26,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOperationCard(BuildContext context, String title, String imageUrl, Widget destination) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Container(
-        width: double.infinity,
-        height: 200,
-        padding: const EdgeInsets.all(16),
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.28,
         decoration: BoxDecoration(
-          color: const Color(0xff283048),
-          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(
+            image: NetworkImage(imageUrl),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.2),
               spreadRadius: 2,
-              blurRadius: 2,
+              blurRadius: 7,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
+          child: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade600,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 23,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.blue,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
