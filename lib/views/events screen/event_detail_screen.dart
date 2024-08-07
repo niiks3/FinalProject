@@ -77,9 +77,81 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       Fluttertoast.showToast(msg: "Scanned: ${scanData.code}");
       controller.pauseCamera(); // Pause the camera after scanning
+
+      // Parse QR code data
+      final uri = Uri.parse(scanData.code ?? '');
+      final eventName = uri.queryParameters['event'] ?? '';
+      final guestName = uri.queryParameters['name'] ?? '';
+      final phoneNumber = uri.queryParameters['phone'] ?? '';
+      final email = uri.queryParameters['email'] ?? '';
+
+      if (guestName.isEmpty || eventName.isEmpty) {
+        Fluttertoast.showToast(
+          msg: "Invalid QR code data",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        controller.resumeCamera();
+        return;
+      }
+
+      // Check if the guest is registered
+      try {
+        QuerySnapshot guestsSnapshot = await FirebaseFirestore.instance
+            .collection('guests')
+            .where('eventId', isEqualTo: widget.event.id)
+            .where('firstName', isEqualTo: guestName.split(' ')[0])
+            .where('lastName', isEqualTo: guestName.split(' ')[1])
+            .get();
+
+        if (guestsSnapshot.docs.isNotEmpty) {
+          final guestDoc = guestsSnapshot.docs.first;
+          await FirebaseFirestore.instance
+              .collection('guests')
+              .doc(guestDoc.id)
+              .update({'admitted': true, 'status': 'Admitted'});
+
+          Fluttertoast.showToast(
+            msg: "$guestName has been admitted",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: "Guest not found",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+      } catch (e) {
+        print('Error admitting guest: $e');
+        Fluttertoast.showToast(
+          msg: "Error admitting guest",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      } finally {
+        controller.resumeCamera();
+      }
     });
   }
 
@@ -109,13 +181,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.qr_code_scanner, color: Colors.white,),
+              icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        QRViewExample(onQRViewCreated: _onQRViewCreated),
+                    builder: (context) => QRViewExample(onQRViewCreated: _onQRViewCreated),
                   ),
                 );
               },
@@ -189,8 +260,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     );
   }
 
-  Widget _buildDetailCardWithButton(
-      String text, String buttonText, VoidCallback onPressed) {
+  Widget _buildDetailCardWithButton(String text, String buttonText, VoidCallback onPressed) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(16.0),
