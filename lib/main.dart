@@ -8,7 +8,7 @@ import 'views/onboarding_screen.dart';
 import 'views/login_signup_view.dart';
 import 'views/profile_screen.dart';
 import 'views/space_uploader_login_signup_view.dart';
-import 'views/space_uploader_profile_screen.dart';
+import 'spaceuploader_events_screens/space_uploader_profile_screen.dart';
 import 'spaceuploader_events_screens//space_uploader_events_screen.dart';
 import 'views/events screen/new_event_screen.dart';
 import 'views/event_space_search_page.dart';

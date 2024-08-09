@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'space_uploader_profile_screen.dart';
+import '../spaceuploader_events_screens/space_uploader_profile_screen.dart';
 
 class SpaceUploaderLoginSignupView extends StatefulWidget {
   const SpaceUploaderLoginSignupView({super.key});

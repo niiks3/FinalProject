@@ -8,7 +8,7 @@ import 'package:project/views/event_space_search_page.dart';
 import 'package:project/views/event_space_bid_management.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'BidForumScreen.dart';
 class ProfileScreen extends StatefulWidget {
   final String email;
 
@@ -300,10 +300,17 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           ),
           _buildOperationCard(
             context,
+            'Bid Forum',
+            'https://cdn.pixabay.com/photo/2020/02/06/19/24/forum-4827715_960_720.jpg',
+            const BidForumScreen(),
+          ),
+          _buildOperationCard(
+            context,
             'Manage Bids',
             'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
             const EventSpaceBidManagementScreen(),
           ),
+
         ],
       ),
     );
@@ -424,3 +431,4 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     );
   }
 }
+

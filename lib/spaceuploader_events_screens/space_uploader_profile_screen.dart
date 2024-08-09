@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project/spaceuploader_events_screens/manage_spaces_screen.dart';
 import 'package:project/spaceuploader_events_screens/space_uploader_events_screen.dart';
 import 'package:project/spaceuploader_events_screens/uploaderbidemanagement.dart';
-import 'events screen/events_screen.dart';
-import 'Payouts/payouts_screen.dart';
-import 'settings/settings_screen.dart';
-import 'event_space_bid_management.dart'; // Import the Manage Bids screen
+import '../views/Payouts/payouts_screen.dart';
+import '../views/settings/settings_screen.dart';
+import 'UploaderBidForumScreen.dart';
 
 class SpaceUploaderProfileScreen extends StatefulWidget {
   final String email;
@@ -252,119 +252,26 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                 textAlign: TextAlign.left,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.3,
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: NetworkImage('https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png'),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SpaceUploaderSpaceManagementScreen()),
-                    );
-                  },
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade600,
-                            borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'My Spaces',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            // Add My Spaces card
+            _buildOperationCard(
+              context,
+              'My Spaces',
+              'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
+              const ManageSpacesScreen(),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.3,
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: NetworkImage('https://cdn.pixabay.com/photo/2017/01/22/12/11/whale-2007261_1280.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const UploaderBidManagementScreen()),
-                    );
-                  },
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade600,
-                            borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Manage Bids',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            // Add Manage Bids card
+            _buildOperationCard(
+              context,
+              'Manage Bids',
+              'https://cdn.pixabay.com/photo/2017/01/22/12/11/whale-2007261_1280.jpg',
+              const UploaderBidManagementScreen(),
+            ),
+            // Add Bid Forum card
+            _buildOperationCard(
+              context,
+              'Bid Forum',
+              'https://cdn.pixabay.com/photo/2016/03/09/15/10/business-1245860_1280.jpg',
+              UploaderBidForumScreen(),
             ),
           ],
         ),
@@ -372,78 +279,61 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(String title, String value, BuildContext context, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildOperationCard(BuildContext context, String title, String imageUrl, Widget destination) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Container(
-        width: double.infinity,
-        height: 200,
-        padding: const EdgeInsets.all(16),
+        width: MediaQuery.of(context).size.width * 0.8,
+        height: MediaQuery.of(context).size.height * 0.3,
         decoration: BoxDecoration(
-          color: const Color(0xff283048),
-          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(
+            image: NetworkImage(imageUrl),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.2),
               spreadRadius: 2,
-              blurRadius: 2,
+              blurRadius: 7,
               offset: const Offset(0, 3),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destination),
+            );
+          },
+          child: Stack(
+            children: [
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade600,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SpaceUploaderSpaceManagementScreen extends StatelessWidget {
-  const SpaceUploaderSpaceManagementScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Spaces'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Manage your spaces here.'),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the page to add a new space
-              },
-              child: const Text('Add New Space'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the page to view and manage existing spaces
-              },
-              child: const Text('View My Spaces'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
