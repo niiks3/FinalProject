@@ -30,35 +30,55 @@ class UploaderBidForumScreen extends StatelessWidget {
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: ListTile(
+                child: ExpansionTile(
                   title: Text(message),
-                  subtitle: request['response'] != null
-                      ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Response: ${request['response']}'),
-                      if (request['linkedSpaceId'] != null)
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SpaceDetailScreen(spaceId: request['linkedSpaceId']),
-                              ),
+                  children: [
+                    StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('bid_forum')
+                          .doc(requestId)
+                          .collection('responses')
+                          .snapshots(),
+                      builder: (context, responseSnapshot) {
+                        if (!responseSnapshot.hasData) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        final responses = responseSnapshot.data!.docs;
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: responses.length,
+                          itemBuilder: (context, responseIndex) {
+                            var response = responses[responseIndex].data() as Map<String, dynamic>;
+                            return ListTile(
+                              title: Text('Response: ${response['response']}'),
+                              subtitle: response['linkedSpaceId'] != null
+                                  ? GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SpaceDetailScreen(spaceId: response['linkedSpaceId']),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'View Space',
+                                  style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                                ),
+                              )
+                                  : null,
                             );
                           },
-                          child: Text(
-                            'View Space',
-                            style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
-                          ),
-                        ),
-                    ],
-                  )
-                      : null,
-                  trailing: ElevatedButton(
-                    onPressed: () => _showResponseDialog(context, requestId),
-                    child: const Text('Reply'),
-                  ),
+                        );
+                      },
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _showResponseDialog(context, requestId),
+                      child: const Text('Reply'),
+                    ),
+                  ],
                 ),
               );
             },
@@ -134,9 +154,14 @@ class UploaderBidForumScreen extends StatelessWidget {
   }
 
   void _submitResponse(String requestId, String response, String linkedSpaceId) {
-    FirebaseFirestore.instance.collection('bid_forum').doc(requestId).update({
+    FirebaseFirestore.instance
+        .collection('bid_forum')
+        .doc(requestId)
+        .collection('responses')
+        .add({
       'response': response,
       'linkedSpaceId': linkedSpaceId,
+      'timestamp': Timestamp.now(),
     });
   }
 }

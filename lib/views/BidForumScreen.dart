@@ -63,31 +63,13 @@ class BidPostList extends StatelessWidget {
                           : 'Unknown time',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                    if (postData['response'] != null) ...[
-                      const SizedBox(height: 10),
-                      const Divider(),
-                      const Text(
-                        'Response:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(postData['response']),
-                      if (postData['linkedSpaceId'] != null)
-                        GestureDetector(
-                          onTap: () {
-                            // Navigate to the linked space details page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SpaceDetailScreen(spaceId: postData['linkedSpaceId']),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'View Space',
-                            style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
-                          ),
-                        ),
-                    ],
+                    const SizedBox(height: 10),
+                    _buildResponseList(post.id), // Display the list of responses
+                    const Divider(),
+                    ElevatedButton(
+                      onPressed: () => _showResponseDialog(context, post.id), // Pass the correct post ID
+                      child: const Text('Reply'),
+                    ),
                   ],
                 ),
               ),
@@ -96,6 +78,129 @@ class BidPostList extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _buildResponseList(String postId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('bid_forum').doc(postId).collection('responses').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        var responseDocs = snapshot.data!.docs;
+
+        if (responseDocs.isEmpty) {
+          return const Text('No responses yet.');
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: responseDocs.map((doc) {
+            var responseData = doc.data() as Map<String, dynamic>;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Response: ${responseData['response'] ?? ''}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (responseData['linkedSpaceId'] != null)
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to the linked space details page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SpaceDetailScreen(spaceId: responseData['linkedSpaceId']),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'View Space',
+                      style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                    ),
+                  ),
+              ],
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  void _showResponseDialog(BuildContext context, String postId) {
+    final TextEditingController responseController = TextEditingController();
+    String? selectedSpaceId; // Nullable type to handle selection properly
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Reply to Request'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: responseController,
+                decoration: const InputDecoration(hintText: 'Enter your response'),
+              ),
+              const SizedBox(height: 10),
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('spaces').snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final spaces = snapshot.data!.docs;
+                  return DropdownButtonFormField<String>(
+                    items: spaces.map((space) {
+                      return DropdownMenuItem<String>(
+                        value: space.id, // Use space.id to get the document ID
+                        child: Text(space['title']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      selectedSpaceId = value; // Assign selectedSpaceId
+                    },
+                    decoration: const InputDecoration(hintText: 'Select a space to link'),
+                  );
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (responseController.text.isNotEmpty) {
+                  _submitResponse(postId, responseController.text, selectedSpaceId);
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a response.')),
+                  );
+                }
+              },
+              child: const Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _submitResponse(String postId, String response, String? linkedSpaceId) {
+    var responseData = {
+      'response': response,
+      'linkedSpaceId': linkedSpaceId,
+    };
+
+    FirebaseFirestore.instance.collection('bid_forum').doc(postId).collection('responses').add(responseData);
   }
 }
 
