@@ -23,30 +23,27 @@ class UploaderBidForumScreen extends StatelessWidget {
             itemCount: requests.length,
             itemBuilder: (context, index) {
               var request = requests[index].data() as Map<String, dynamic>;
-              String requestId = requests[index].id; // Get the document ID
+              String requestId = requests[index].id;
 
-              // Handle potential null values
-              String message = request['message'] ?? 'No message provided';
-              String? response = request['response']; // Can be null
-              String? linkedSpaceId = request['linkedSpaceId']; // Can be null
+              // Ensure message field is properly retrieved
+              String message = request['content'] ?? 'No message provided';
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: ListTile(
                   title: Text(message),
-                  subtitle: response != null
+                  subtitle: request['response'] != null
                       ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Response: $response'),
-                      if (linkedSpaceId != null)
+                      Text('Response: ${request['response']}'),
+                      if (request['linkedSpaceId'] != null)
                         GestureDetector(
                           onTap: () {
-                            // Navigate to the linked space details page
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => SpaceDetailScreen(spaceId: linkedSpaceId),
+                                builder: (context) => SpaceDetailScreen(spaceId: request['linkedSpaceId']),
                               ),
                             );
                           },
@@ -57,9 +54,9 @@ class UploaderBidForumScreen extends StatelessWidget {
                         ),
                     ],
                   )
-                      : const Text('No response yet'),
+                      : null,
                   trailing: ElevatedButton(
-                    onPressed: () => _showResponseDialog(context, requestId), // Pass the correct requestId
+                    onPressed: () => _showResponseDialog(context, requestId),
                     child: const Text('Reply'),
                   ),
                 ),
@@ -73,7 +70,7 @@ class UploaderBidForumScreen extends StatelessWidget {
 
   void _showResponseDialog(BuildContext context, String requestId) {
     final TextEditingController responseController = TextEditingController();
-    String? selectedSpaceId; // Nullable type to handle selection properly
+    String? selectedSpaceId;
 
     showDialog(
       context: context,
@@ -88,7 +85,6 @@ class UploaderBidForumScreen extends StatelessWidget {
                 decoration: const InputDecoration(hintText: 'Enter your response'),
               ),
               const SizedBox(height: 10),
-              // Dropdown or list to select a space
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance.collection('spaces').snapshots(),
                 builder: (context, snapshot) {
@@ -100,12 +96,12 @@ class UploaderBidForumScreen extends StatelessWidget {
                   return DropdownButtonFormField<String>(
                     items: spaces.map((space) {
                       return DropdownMenuItem<String>(
-                        value: space.id, // Use space.id to get the document ID
+                        value: space.id,
                         child: Text(space['title'] ?? 'Untitled Space'),
                       );
                     }).toList(),
                     onChanged: (value) {
-                      selectedSpaceId = value; // Assign selectedSpaceId
+                      selectedSpaceId = value;
                     },
                     decoration: const InputDecoration(hintText: 'Select a space to link'),
                   );
@@ -124,7 +120,6 @@ class UploaderBidForumScreen extends StatelessWidget {
                   _submitResponse(requestId, responseController.text, selectedSpaceId!);
                   Navigator.pop(context);
                 } else {
-                  // Handle case where no space is selected or no response is provided
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Please enter a response and select a space to link.')),
                   );
@@ -181,7 +176,6 @@ class SpaceDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(spaceData['description'] ?? 'No description provided.'),
-                // Add more space details here as needed
               ],
             ),
           );

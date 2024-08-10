@@ -63,6 +63,31 @@ class BidPostList extends StatelessWidget {
                           : 'Unknown time',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
+                    if (postData['response'] != null) ...[
+                      const SizedBox(height: 10),
+                      const Divider(),
+                      const Text(
+                        'Response:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(postData['response']),
+                      if (postData['linkedSpaceId'] != null)
+                        GestureDetector(
+                          onTap: () {
+                            // Navigate to the linked space details page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SpaceDetailScreen(spaceId: postData['linkedSpaceId']),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'View Space',
+                            style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                          ),
+                        ),
+                    ],
                   ],
                 ),
               ),
@@ -125,6 +150,48 @@ class _BidPostInputState extends State<BidPostInput> {
             onPressed: _postBid,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// SpaceDetailScreen for navigating to the space details
+class SpaceDetailScreen extends StatelessWidget {
+  final String spaceId;
+
+  const SpaceDetailScreen({super.key, required this.spaceId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Space Details'),
+      ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('spaces').doc(spaceId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final spaceData = snapshot.data!.data() as Map<String, dynamic>;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  spaceData['title'],
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(spaceData['description']),
+                // Add more space details here as needed
+              ],
+            ),
+          );
+        },
       ),
     );
   }
