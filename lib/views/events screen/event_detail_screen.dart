@@ -78,15 +78,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) async {
-      Fluttertoast.showToast(msg: "Scanned: ${scanData.code}");
       controller.pauseCamera(); // Pause the camera after scanning
 
       // Parse QR code data
       final uri = Uri.parse(scanData.code ?? '');
       final eventName = uri.queryParameters['event'] ?? '';
-      final guestName = uri.queryParameters['name'] ?? '';
-      final phoneNumber = uri.queryParameters['phone'] ?? '';
-      final email = uri.queryParameters['email'] ?? '';
+      final guestName = uri.queryParameters['Guest'] ?? '';  // Adjusted to match your QR code data format
+      final phoneNumber = uri.queryParameters['Phone'] ?? '';
+      final email = uri.queryParameters['Email'] ?? '';
 
       if (guestName.isEmpty || eventName.isEmpty) {
         Fluttertoast.showToast(
@@ -113,23 +112,41 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
         if (guestsSnapshot.docs.isNotEmpty) {
           final guestDoc = guestsSnapshot.docs.first;
-          await FirebaseFirestore.instance
-              .collection('guests')
-              .doc(guestDoc.id)
-              .update({'admitted': true, 'status': 'Admitted'});
+          final guestData = guestDoc.data() as Map<String, dynamic>;
+          final isAdmitted = guestData['admitted'] ?? false;
 
-          Fluttertoast.showToast(
-            msg: "$guestName has been admitted",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
+          if (isAdmitted) {
+            Fluttertoast.showToast(
+              msg: "$guestName has already been admitted",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.orange,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          } else {
+            await FirebaseFirestore.instance
+                .collection('guests')
+                .doc(guestDoc.id)
+                .update({'admitted': true, 'status': 'Admitted'});
+
+            Fluttertoast.showToast(
+              msg: "$guestName has been admitted",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+
+            // Optionally, update the event statistics after admitting the guest
+            _calculateEventStatistics();
+          }
         } else {
           Fluttertoast.showToast(
-            msg: "Guest not found",
+            msg: "Invalid QR code",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -434,3 +451,4 @@ class QRViewExample extends StatelessWidget {
     );
   }
 }
+
