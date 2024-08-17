@@ -66,43 +66,34 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       // Print scanned QR code data for debugging
       print("Scanned QR Code: ${scanData.code}");
 
-      // Parse QR code data
-      final uri = Uri.tryParse(scanData.code ?? '');
-
-      if (uri == null) {
-        Fluttertoast.showToast(
-          msg: "Invalid QR code format",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+      // Parse QR code data by splitting it manually
+      String? qrData = scanData.code;
+      if (qrData == null || !qrData.contains('eventId')) {
+        _showToast("Invalid QR code format", Colors.red);
         controller.resumeCamera();
         return;
       }
 
-      // Extract parameters from the QR code
-      final eventId = uri.queryParameters['eventId'] ?? '';
-      final firstName = uri.queryParameters['firstName'] ?? '';
-      final lastName = uri.queryParameters['lastName'] ?? '';
-      final phoneNumber = uri.queryParameters['phoneNumber'] ?? '';
-      final email = uri.queryParameters['email'] ?? '';
+      // Extract parameters from the QR code string (not assuming it's a valid URI)
+      Map<String, String> qrParams = {};
+      List<String> pairs = qrData.split('&');
+      for (var pair in pairs) {
+        List<String> keyValue = pair.split('=');
+        if (keyValue.length == 2) {
+          qrParams[keyValue[0]] = Uri.decodeComponent(keyValue[1]);
+        }
+      }
 
-      // Log extracted data for debugging
-      print("Extracted Data - Event ID: $eventId, First Name: $firstName, Last Name: $lastName, Phone: $phoneNumber, Email: $email");
+      // Extract data from qrParams
+      final eventId = qrParams['eventId'] ?? '';
+      final firstName = qrParams['firstName'] ?? '';
+      final lastName = qrParams['lastName'] ?? '';
+      final phoneNumber = qrParams['phoneNumber'] ?? '';
+      final email = qrParams['email'] ?? '';
 
+      // Check if any required data is missing
       if (firstName.isEmpty || lastName.isEmpty || eventId.isEmpty || phoneNumber.isEmpty || email.isEmpty) {
-        Fluttertoast.showToast(
-          msg: "Invalid QR code data",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        _showToast("Invalid QR code data", Colors.red);
         controller.resumeCamera();
         return;
       }
@@ -124,60 +115,40 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           final isAdmitted = guestData['admitted'] ?? false;
 
           if (isAdmitted) {
-            Fluttertoast.showToast(
-              msg: "$firstName $lastName has already been admitted",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.orange,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
+            _showToast("$firstName $lastName has already been admitted", Colors.orange);
           } else {
             await FirebaseFirestore.instance
                 .collection('guests')
                 .doc(guestDoc.id)
                 .update({'admitted': true, 'status': 'Admitted'});
 
-            Fluttertoast.showToast(
-              msg: "$firstName $lastName has been admitted",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 1,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-
+            _showToast("$firstName $lastName has been admitted", Colors.green);
             _calculateEventStatistics(); // Optionally update stats
           }
         } else {
-          Fluttertoast.showToast(
-            msg: "Guest not found",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
+          _showToast("Guest not found", Colors.red);
         }
       } catch (e) {
         print('Error admitting guest: $e');
-        Fluttertoast.showToast(
-          msg: "Error admitting guest",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        _showToast("Error admitting guest", Colors.red);
       } finally {
         controller.resumeCamera();
       }
     });
   }
+
+  void _showToast(String message, Color backgroundColor) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: backgroundColor,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
 
   @override
   void dispose() {
