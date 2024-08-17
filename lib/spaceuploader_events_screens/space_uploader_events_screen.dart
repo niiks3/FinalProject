@@ -17,7 +17,7 @@ class SpaceUploaderEventsScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xff283048), Color(0xff859398)],
+                colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
                 stops: [0, 1],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

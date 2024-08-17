@@ -60,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xff283048), Color(0xff859398)],
+                colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
                 stops: [0, 1],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -77,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 140,
                   padding: const EdgeInsets.only(top: 50, bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.blueGrey,
+                    color: Color(0xff2575fc),
                     borderRadius: const BorderRadius.only(
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30),

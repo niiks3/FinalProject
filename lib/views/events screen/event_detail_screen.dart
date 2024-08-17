@@ -31,21 +31,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   void _calculateEventStatistics() async {
     try {
-      print('Fetching guests for event ID: ${widget.event.id}');
-
       QuerySnapshot guestsSnapshot = await FirebaseFirestore.instance
           .collection('guests')
           .where('eventId', isEqualTo: widget.event.id)
           .get();
-
-      if (guestsSnapshot.docs.isEmpty) {
-        print('No guests found for event ID: ${widget.event.id}');
-      } else {
-        print('Guests found for event ID: ${widget.event.id}');
-        for (var guest in guestsSnapshot.docs) {
-          print('Guest data: ${guest.data()}');
-        }
-      }
 
       setState(() {
         numberOfGuests = guestsSnapshot.docs.length;
@@ -55,14 +44,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         grossAmount = guestsSnapshot.docs
             .fold(0.0, (sum, guest) => sum + ((guest.data() as Map<String, dynamic>)['ticketPrice']?.toDouble() ?? 0.0));
         netAmount = grossAmount * 0.95;
-
-        print('Number of guests: $numberOfGuests');
-        print('Seats confirmed: $seatsConfirmed');
-        print('Gross amount: $grossAmount');
-        print('Net amount: $netAmount');
       });
     } catch (e) {
-      print('Error calculating event statistics: $e');
       Fluttertoast.showToast(
         msg: "Error calculating event statistics",
         toastLength: Toast.LENGTH_SHORT,
@@ -80,14 +63,37 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     controller.scannedDataStream.listen((scanData) async {
       controller.pauseCamera(); // Pause the camera after scanning
 
-      // Parse QR code data
-      final uri = Uri.parse(scanData.code ?? '');
-      final eventName = uri.queryParameters['event'] ?? '';
-      final guestName = uri.queryParameters['Guest'] ?? '';  // Adjusted to match your QR code data format
-      final phoneNumber = uri.queryParameters['Phone'] ?? '';
-      final email = uri.queryParameters['Email'] ?? '';
+      // Print scanned QR code data for debugging
+      print("Scanned QR Code: ${scanData.code}");
 
-      if (guestName.isEmpty || eventName.isEmpty) {
+      // Parse QR code data
+      final uri = Uri.tryParse(scanData.code ?? '');
+
+      if (uri == null) {
+        Fluttertoast.showToast(
+          msg: "Invalid QR code format",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        controller.resumeCamera();
+        return;
+      }
+
+      // Extract parameters from the QR code
+      final eventId = uri.queryParameters['eventId'] ?? '';
+      final firstName = uri.queryParameters['firstName'] ?? '';
+      final lastName = uri.queryParameters['lastName'] ?? '';
+      final phoneNumber = uri.queryParameters['phoneNumber'] ?? '';
+      final email = uri.queryParameters['email'] ?? '';
+
+      // Log extracted data for debugging
+      print("Extracted Data - Event ID: $eventId, First Name: $firstName, Last Name: $lastName, Phone: $phoneNumber, Email: $email");
+
+      if (firstName.isEmpty || lastName.isEmpty || eventId.isEmpty || phoneNumber.isEmpty || email.isEmpty) {
         Fluttertoast.showToast(
           msg: "Invalid QR code data",
           toastLength: Toast.LENGTH_SHORT,
@@ -101,13 +107,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         return;
       }
 
-      // Check if the guest is registered
+      // Proceed with checking guest registration in Firestore
       try {
         QuerySnapshot guestsSnapshot = await FirebaseFirestore.instance
             .collection('guests')
-            .where('eventId', isEqualTo: widget.event.id)
-            .where('firstName', isEqualTo: guestName.split(' ')[0])
-            .where('lastName', isEqualTo: guestName.split(' ')[1])
+            .where('eventId', isEqualTo: eventId)
+            .where('firstName', isEqualTo: firstName)
+            .where('lastName', isEqualTo: lastName)
+            .where('phoneNumber', isEqualTo: phoneNumber)
+            .where('email', isEqualTo: email)
             .get();
 
         if (guestsSnapshot.docs.isNotEmpty) {
@@ -117,7 +125,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
           if (isAdmitted) {
             Fluttertoast.showToast(
-              msg: "$guestName has already been admitted",
+              msg: "$firstName $lastName has already been admitted",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
@@ -132,7 +140,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 .update({'admitted': true, 'status': 'Admitted'});
 
             Fluttertoast.showToast(
-              msg: "$guestName has been admitted",
+              msg: "$firstName $lastName has been admitted",
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
@@ -141,12 +149,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               fontSize: 16.0,
             );
 
-            // Optionally, update the event statistics after admitting the guest
-            _calculateEventStatistics();
+            _calculateEventStatistics(); // Optionally update stats
           }
         } else {
           Fluttertoast.showToast(
-            msg: "Invalid QR code",
+            msg: "Guest not found",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -213,7 +220,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xff283048), Color(0xff859398)],
+              colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
               stops: [0, 1],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

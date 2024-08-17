@@ -9,12 +9,12 @@ class UploaderBidForumScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bid Forum'),
-        backgroundColor: Colors.blue.shade900,
+        backgroundColor: Color(0xf95C3F1FF),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xff6a11cb), Color(0xff2575fc)],
+            colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

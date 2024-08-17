@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart'; // Import intl for date formatting
 
 class BidForumScreen extends StatelessWidget {
   const BidForumScreen({super.key});
@@ -10,12 +11,12 @@ class BidForumScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bid Forum'),
-        backgroundColor: Colors.blue.shade900,
+        backgroundColor: const Color(0x95C3F1FF),
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xff6a11cb), Color(0xff2575fc)],
+            colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -29,6 +30,22 @@ class BidForumScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// Helper function to format the date with ordinal suffix
+String formatDayWithOrdinal(int day) {
+  if (day == 1 || day == 21 || day == 31) return '${day}st';
+  if (day == 2 || day == 22) return '${day}nd';
+  if (day == 3 || day == 23) return '${day}rd';
+  return '${day}th';
+}
+
+// Helper function to format the date properly
+String formatDate(DateTime timestamp) {
+  final dayWithOrdinal = formatDayWithOrdinal(timestamp.day);
+  final formattedMonth = DateFormat('MM').format(timestamp); // Ensure leading zero for month
+  final formattedYear = DateFormat('y').format(timestamp); // Year in four digits
+  return '$dayWithOrdinal\n$formattedMonth\n$formattedYear';
 }
 
 // Widget to display the list of bid posts
@@ -50,7 +67,9 @@ class BidPostList extends StatelessWidget {
             var post = documents[index];
             var postData = post.data() as Map<String, dynamic>;
             var timestamp = (postData['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now();
-            var dateString = "${timestamp.day}\n${timestamp.month}\n${timestamp.year}";
+
+            // Format the date string properly
+            var formattedDate = formatDate(timestamp);
 
             return Card(
               margin: const EdgeInsets.all(10),
@@ -64,7 +83,7 @@ class BidPostList extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      dateString,
+                      formattedDate,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -89,7 +108,7 @@ class BidPostList extends StatelessWidget {
                           Text(postData['content'] ?? ''),
                           const SizedBox(height: 10),
                           Text(
-                            timestamp.toString(),
+                            DateFormat('yyyy-MM-dd HH:mm:ss').format(timestamp),
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
