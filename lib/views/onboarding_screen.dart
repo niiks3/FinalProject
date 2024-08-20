@@ -117,7 +117,7 @@ class OnBoardingScreen extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginSignupView()));
                                     },
-                                    child: const Text('Login as Normal User'),
+                                    child: const Text('Login as Event Organizer'),
                                   ),
                                   const SizedBox(height: 25),
                                   ElevatedButton(
@@ -127,7 +127,7 @@ class OnBoardingScreen extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) => const SpaceUploaderLoginSignupView()));
                                     },
-                                    child: const Text('Login as Space Uploader'),
+                                    child: const Text('Login as Venue Provider'),
                                   ),
                                 ],
                               ),
