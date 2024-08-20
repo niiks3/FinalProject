@@ -166,7 +166,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(eventData['name']),
-          backgroundColor: const Color(0xff283048),
+          backgroundColor: const Color(0xff2575fc),
           elevation: 0,
           bottom: const TabBar(
             tabs: [
@@ -297,7 +297,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             controller: searchController,
             decoration: InputDecoration(
               hintText: 'Search Guests',
-              prefixIcon: const Icon(Icons.search, color: Colors.white),
+              prefixIcon: const Icon(Icons.search, color: Colors.black26),
               filled: true,
               fillColor: Colors.white.withOpacity(0.7),
               border: OutlineInputBorder(
@@ -353,7 +353,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     return ListTile(
                       title: Text(
                         guestName,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.black),
                       ),
                       subtitle: Text(
                         isAdmitted ? 'Status: Admitted' : 'Status: Not Admitted',
