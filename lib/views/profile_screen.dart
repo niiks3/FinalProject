@@ -76,9 +76,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: double.infinity,
                   height: 140,
                   padding: const EdgeInsets.only(top: 50, bottom: 20),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Color(0xff2575fc),
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30),
                     ),
