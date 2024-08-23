@@ -98,7 +98,7 @@ class _EventAnalyticsScreenState extends State<EventAnalyticsScreen> {
               width: mediaQuery.size.width,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xff283048), Color(0xff859398)],
+                  colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

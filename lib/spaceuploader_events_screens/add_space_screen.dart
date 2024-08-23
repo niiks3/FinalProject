@@ -100,7 +100,6 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
       for (int i = 0; i < _imageFileNames.length; i++) {
         final imageName = DateTime.now().millisecondsSinceEpoch.toString();
         final storageRef = FirebaseStorage.instance.ref().child('spaces/$imageName');
-
         if (kIsWeb) {
           final webPicker = WebImagePicker();
           final data = await webPicker.getFileData(_imageFiles[i]);
@@ -165,113 +164,120 @@ class _AddSpaceScreenState extends State<AddSpaceScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'File Upload',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Colors.blueAccent, Colors.cyan],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _pickImages,
-                child: Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.cloud_upload, size: 50),
-                        const SizedBox(height: 10),
-                        const Text('Drag and Drop or Browse'),
-                        const SizedBox(height: 10),
-                      ],
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'File Upload',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: _pickImages,
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.cloud_upload, size: 50),
+                          const SizedBox(height: 10),
+                          const Text('Drag and Drop or Browse'),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _imageFileNames.map((name) {
-                  int index = _imageFileNames.indexOf(name);
-                  return Stack(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: kIsWeb
-                                ? NetworkImage(WebImagePicker().createObjectUrlFromBlob(_imageFiles[index]))
-                                : FileImage(_imageFiles[index] as io.File) as ImageProvider,
-                            fit: BoxFit.cover,
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: _imageFileNames.map((name) {
+                    int index = _imageFileNames.indexOf(name);
+                    return Stack(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: kIsWeb
+                                  ? NetworkImage(WebImagePicker().createObjectUrlFromBlob(_imageFiles[index]))
+                                  : FileImage(_imageFiles[index] as io.File) as ImageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.grey),
                           ),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey),
                         ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: 5,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _imageFiles.removeAt(index);
-                              _imageFileNames.removeAt(index);
-                              _uploadProgress.removeAt(index);
-                            });
-                          },
-                          child: const Icon(Icons.close, color: Colors.red),
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _imageFiles.removeAt(index);
+                                _imageFileNames.removeAt(index);
+                                _uploadProgress.removeAt(index);
+                              });
+                            },
+                            child: const Icon(Icons.close, color: Colors.red),
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-              TextField(
-                controller: _startingBidController,
-                decoration: const InputDecoration(labelText: 'Starting Bid'),
-                keyboardType: TextInputType.number,
-              ),
-              TextField(
-                controller: _capacityController,
-                decoration: const InputDecoration(labelText: 'Capacity'),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancel'),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: _uploadSpace,
-                    child: const Text('Publish'),
-                  ),
-                ],
-              ),
-            ],
+                      ],
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                ),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+                TextField(
+                  controller: _startingBidController,
+                  decoration: const InputDecoration(labelText: 'Starting Bid'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: _capacityController,
+                  decoration: const InputDecoration(labelText: 'Capacity'),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _uploadSpace,
+                  child: const Text('Upload Space'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

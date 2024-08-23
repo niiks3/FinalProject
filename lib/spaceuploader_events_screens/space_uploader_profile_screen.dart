@@ -263,14 +263,14 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
             _buildOperationCard(
               context,
               'Manage Bids',
-              'https://cdn.pixabay.com/photo/2017/01/22/12/11/whale-2007261_1280.jpg',
+              'https://cdn.pixabay.com/photo/2017/10/11/11/43/multitasking-2840792_1280.jpg',
               const UploaderBidManagementScreen(),
             ),
             // Add Bid Forum card
             _buildOperationCard(
               context,
               'Bid Forum',
-              'https://cdn.pixabay.com/photo/2016/03/09/15/10/business-1245860_1280.jpg',
+              'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
               UploaderBidForumScreen(),
             ),
           ],
