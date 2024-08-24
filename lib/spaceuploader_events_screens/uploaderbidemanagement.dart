@@ -45,17 +45,38 @@ class UploaderBidManagementScreen extends StatelessWidget {
 
   Future<void> _handleBidAction(BuildContext context, String bidId, String spaceId, bool isAccepted) async {
     try {
-      await FirebaseFirestore.instance.collection('bids').doc(bidId).update({
-        'status': isAccepted ? 'accepted' : 'declined',
-      });
+      // Fetch the bid data to get the bid date
+      DocumentSnapshot bidSnapshot = await FirebaseFirestore.instance.collection('bids').doc(bidId).get();
+      var bidData = bidSnapshot.data() as Map<String, dynamic>;
+      DateTime bidDate = bidData['timestamp'].toDate();
 
       if (isAccepted) {
+        // Fetch all bids on the same date for this space
+        QuerySnapshot otherBidsSnapshot = await FirebaseFirestore.instance
+            .collection('bids')
+            .where('spaceId', isEqualTo: spaceId)
+            .where('timestamp', isEqualTo: bidDate)
+            .get();
+
+        // Update the status of all bids on the same date to 'declined'
+        for (var otherBid in otherBidsSnapshot.docs) {
+          await FirebaseFirestore.instance.collection('bids').doc(otherBid.id).update({
+            'status': otherBid.id == bidId ? 'accepted' : 'declined',
+          });
+        }
+
+        // Update the space status to 'booked'
         await FirebaseFirestore.instance.collection('spaces').doc(spaceId).update({
           'status': 'booked',
         });
+      } else {
+        // If the bid is declined, just update the status of the current bid
+        await FirebaseFirestore.instance.collection('bids').doc(bidId).update({
+          'status': 'declined',
+        });
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAccepted ? 'Bid accepted' : 'Bid declined')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isAccepted ? 'Bid accepted, all other bids on the same date declined' : 'Bid declined')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
@@ -76,92 +97,162 @@ class UploaderBidManagementScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Manage Bids'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('spaces')
-            .where('createdBy', isEqualTo: user.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('spaces')
+                .where('createdBy', isEqualTo: user.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No spaces available.'));
-          }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No spaces available.'));
+              }
 
-          var spaces = snapshot.data!.docs;
+              var spaces = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: spaces.length,
-            itemBuilder: (context, index) {
-              var space = spaces[index];
-              var spaceData = space.data() as Map<String, dynamic>;
+              return ListView.builder(
+                itemCount: spaces.length,
+                itemBuilder: (context, index) {
+                  var space = spaces[index];
+                  var spaceData = space.data() as Map<String, dynamic>;
 
-              return StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('bids')
-                    .where('spaceId', isEqualTo: space.id)
-                    .snapshots(),
-                builder: (context, bidSnapshot) {
-                  if (bidSnapshot.connectionState == ConnectionState.waiting) {
-                    return const ListTile(
-                      title: Text('Loading...'),
-                    );
-                  }
-
-                  if (!bidSnapshot.hasData || bidSnapshot.data!.docs.isEmpty) {
-                    return const ListTile(
-                      title: Text('No bids available for this space.'),
-                    );
-                  }
-
-                  var bids = bidSnapshot.data!.docs;
-
-                  return ExpansionTile(
-                    title: Text(spaceData['title']),
-                    leading: spaceData['imageUrls'] != null && spaceData['imageUrls'].isNotEmpty
-                        ? Image.network(spaceData['imageUrls'][0], width: 50, height: 50, fit: BoxFit.cover)
-                        : const Icon(Icons.image, size: 50),
-                    children: [
-                      ...bids.map((bid) {
-                        var bidData = bid.data() as Map<String, dynamic>;
-
-                        return ListTile(
-                          title: Text('Bid Amount: \$${bidData['amount']}'),
-                          subtitle: Text(
-                            'Placed on: ${DateFormat('yyyy-MM-dd – kk:mm').format(bidData['timestamp'].toDate())}',
-                          ),
-                          isThreeLine: true,
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.check, color: Colors.green),
-                                onPressed: () => _handleBidAction(context, bid.id, space.id, true),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close, color: Colors.red),
-                                onPressed: () => _handleBidAction(context, bid.id, space.id, false),
-                              ),
-                            ],
-                          ),
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('bids')
+                        .where('spaceId', isEqualTo: space.id)
+                        .snapshots(),
+                    builder: (context, bidSnapshot) {
+                      if (bidSnapshot.connectionState == ConnectionState.waiting) {
+                        return const ListTile(
+                          title: Text('Loading...'),
                         );
-                      }).toList(),
-                      ListTile(
-                        title: const Text('Mark as Unavailable'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () => _markAsUnavailable(context, space.id),
-                        ),
-                      ),
-                    ],
+                      }
+
+                      if (!bidSnapshot.hasData || bidSnapshot.data!.docs.isEmpty) {
+                        return const ListTile(
+                          title: Text('No bids available for this space.'),
+                        );
+                      }
+
+                      var bids = bidSnapshot.data!.docs;
+
+                      // Group bids by date
+                      Map<DateTime, List<DocumentSnapshot>> groupedBids = {};
+                      for (var bid in bids) {
+                        var bidData = bid.data() as Map<String, dynamic>;
+                        DateTime bidDate = bidData['timestamp'].toDate();
+                        if (!groupedBids.containsKey(bidDate)) {
+                          groupedBids[bidDate] = [];
+                        }
+                        groupedBids[bidDate]!.add(bid);
+                      }
+
+                      return Column(
+                        children: groupedBids.entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(15.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 5,
+                                    blurRadius: 7,
+                                    offset: const Offset(0, 3), // changes position of shadow
+                                  ),
+                                ],
+                              ),
+                              child: ExpansionTile(
+                                title: ListTile(
+                                  leading: spaceData['imageUrls'] != null && spaceData['imageUrls'].isNotEmpty
+                                      ? Image.network(spaceData['imageUrls'][0], width: 50, height: 50, fit: BoxFit.cover)
+                                      : const Icon(Icons.image, size: 50),
+                                  title: Text(spaceData['title']),
+                                  subtitle: Text(DateFormat('yyyy-MM-dd').format(entry.key)),
+                                ),
+                                children: entry.value.map((bid) {
+                                  var bidData = bid.data() as Map<String, dynamic>;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(10.0),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.3),
+                                            spreadRadius: 2,
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: ListTile(
+                                        title: Text('Bid Amount: GHC${bidData['amount']}'),
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Placed on: ${DateFormat('yyyy-MM-dd – kk:mm').format(bidData['timestamp'].toDate())}',
+                                            ),
+                                            Text('Status: ${bidData['status']}'),
+                                          ],
+                                        ),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                shape: const CircleBorder(),
+                                                padding: const EdgeInsets.all(10),
+                                                backgroundColor: Colors.green, // Background color
+                                              ),
+                                              onPressed: () => _handleBidAction(context, bid.id, space.id, true),
+                                              child: const Icon(Icons.check, color: Colors.white),
+                                            ),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                shape: const CircleBorder(),
+                                                padding: const EdgeInsets.all(10),
+                                                backgroundColor: Colors.red, // Background color
+                                              ),
+                                              onPressed: () => _handleBidAction(context, bid.id, space.id, false),
+                                              child: const Icon(Icons.close, color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
                   );
                 },
               );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }

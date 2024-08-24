@@ -30,7 +30,7 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xff283048), Color(0xff859398)],
+                  colors: [Color(0xf95C3F1FF), Color(0xff2575fc)],
                   stops: [0, 1],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -50,10 +50,10 @@ class _EventSpaceSearchScreenState extends State<EventSpaceSearchScreen> {
                       },
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: Colors.black.withOpacity(0.1),
                         hintText: 'Search event spaces',
-                        hintStyle: TextStyle(color: Colors.white54),
-                        prefixIcon: Icon(Icons.search, color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.black),
+                        prefixIcon: Icon(Icons.search, color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
