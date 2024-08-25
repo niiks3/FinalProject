@@ -7,6 +7,51 @@ import 'event_space_details_screen.dart';
 class EventSpaceBidManagementScreen extends StatelessWidget {
   const EventSpaceBidManagementScreen({super.key});
 
+  Future<void> _placeHigherBid(BuildContext context, String bidId, String spaceId, double currentBidAmount) async {
+    final TextEditingController _bidAmountController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Place a Higher Bid'),
+          content: TextField(
+            controller: _bidAmountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Enter a bid higher than GHC${currentBidAmount.toStringAsFixed(2)}',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                double newBidAmount = double.parse(_bidAmountController.text);
+                if (newBidAmount > currentBidAmount) {
+                  try {
+                    await FirebaseFirestore.instance.collection('bids').doc(bidId).update({
+                      'amount': newBidAmount,
+                      'timestamp': DateTime.now(),
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bid placed successfully')));
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bid amount must be higher than the current bid')));
+                }
+              },
+              child: const Text('Place Bid'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -148,7 +193,13 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                                   ),
                                 );
                               },
-                              child: const Text('Re Bid'),
+                              child: const Text('View Details'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                _placeHigherBid(context, bid.id, bidData['spaceId'], bidData['amount']);
+                              },
+                              child: const Text('Place Higher Bid'),
                             ),
                           ],
                         ),

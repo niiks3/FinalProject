@@ -48,7 +48,12 @@ class UploaderBidManagementScreen extends StatelessWidget {
       // Fetch the bid data to get the bid date
       DocumentSnapshot bidSnapshot = await FirebaseFirestore.instance.collection('bids').doc(bidId).get();
       var bidData = bidSnapshot.data() as Map<String, dynamic>;
-      DateTime bidDate = bidData['timestamp'].toDate();
+      DateTime? bidDate = bidData['timestamp']?.toDate();
+
+      if (bidDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bid date is not available.')));
+        return;
+      }
 
       if (isAccepted) {
         // Fetch all bids on the same date for this space
@@ -153,11 +158,13 @@ class UploaderBidManagementScreen extends StatelessWidget {
                       Map<DateTime, List<DocumentSnapshot>> groupedBids = {};
                       for (var bid in bids) {
                         var bidData = bid.data() as Map<String, dynamic>;
-                        DateTime bidDate = bidData['timestamp'].toDate();
-                        if (!groupedBids.containsKey(bidDate)) {
-                          groupedBids[bidDate] = [];
+                        DateTime? bidDate = bidData['timestamp']?.toDate();
+                        if (bidDate != null) {
+                          if (!groupedBids.containsKey(bidDate)) {
+                            groupedBids[bidDate] = [];
+                          }
+                          groupedBids[bidDate]!.add(bid);
                         }
-                        groupedBids[bidDate]!.add(bid);
                       }
 
                       return Column(
@@ -209,7 +216,7 @@ class UploaderBidManagementScreen extends StatelessWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Placed on: ${DateFormat('yyyy-MM-dd – kk:mm').format(bidData['timestamp'].toDate())}',
+                                              'Placed on: ${bidData['timestamp'] != null ? DateFormat('yyyy-MM-dd – kk:mm').format(bidData['timestamp'].toDate()) : 'N/A'}',
                                             ),
                                             Text('Status: ${bidData['status']}'),
                                           ],
