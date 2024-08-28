@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class PayoutsScreen extends StatefulWidget {
@@ -8,16 +9,13 @@ class PayoutsScreen extends StatefulWidget {
 }
 
 class _PayoutsScreenState extends State<PayoutsScreen> {
-  // List to store payout accounts
   List<Map<String, String>> payoutAccounts = [];
 
-  // Controllers for text inputs
   final TextEditingController _accountNumberController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
   String? selectedAccountType;
   String? selectedMomoNetwork;
 
-  // Function to handle adding a new account
   void _addAccount() {
     if (_accountNumberController.text.isNotEmpty && selectedAccountType != null) {
       setState(() {
@@ -41,14 +39,12 @@ class _PayoutsScreenState extends State<PayoutsScreen> {
     }
   }
 
-  // Function to delete an account
   void _deleteAccount(int index) {
     setState(() {
       payoutAccounts.removeAt(index);
     });
   }
 
-  // Function to open a dialog for adding a new account
   void _showAddAccountDialog() {
     showDialog(
       context: context,
@@ -113,6 +109,8 @@ class _PayoutsScreenState extends State<PayoutsScreen> {
               actions: [
                 TextButton(
                   onPressed: () {
+
+
                     Navigator.pop(context); // Close the dialog
                   },
                   child: const Text('Cancel'),
@@ -190,9 +188,9 @@ class _PayoutsScreenState extends State<PayoutsScreen> {
                   ),
                 ),
                 const Padding(
-                  padding: EdgeInsets.all(8.0),
+                  padding: EdgeInsets.only(bottom: 80.0), // Added bottom padding
                   child: Text(
-                    'NB: There is a 5% commission on the total ticket sales fee for each event.',
+                    'NB: There is a 5% commission on revenue earned.',
                     textAlign: TextAlign.center,
                   ),
                 ),

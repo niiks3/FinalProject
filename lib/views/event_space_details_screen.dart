@@ -85,8 +85,6 @@ class __BidSectionState extends State<_BidSection> {
   final TextEditingController _bidAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   bool _isLoading = false;
-  double? _highestBid;
-  bool _isDateSelected = false;
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
@@ -95,37 +93,75 @@ class __BidSectionState extends State<_BidSection> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
-
     if (pickedDate != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
-      setState(() {
-        _dateController.text = formattedDate;
-      });
 
-      print("Selected Date: $formattedDate");
-
-      // Check if any bid exists for the selected date
+      // Check if a bid already exists for the selected date
       QuerySnapshot existingBids = await FirebaseFirestore.instance
           .collection('bids')
           .where('spaceId', isEqualTo: widget.spaceId)
           .where('intendedDate', isEqualTo: formattedDate)
-          .orderBy('amount', descending: true)
           .get();
 
       if (existingBids.docs.isNotEmpty) {
-        setState(() {
-          _highestBid = existingBids.docs.first['amount'].toDouble();
-          _isDateSelected = true;
-        });
-        print("Highest Bid for $formattedDate: $_highestBid");
-      } else {
-        setState(() {
-          _highestBid = null;
-          _isDateSelected = true;
-        });
-        print("No bids found for $formattedDate");
+        // Check the status and find the highest bid
+        double highestBid = 0.0;
+        bool hasAcceptedBid = false;
+        bool shouldProceed = false;
+
+        for (var bidDoc in existingBids.docs) {
+          var bidData = bidDoc.data() as Map<String, dynamic>;
+          if (bidData['status'] == 'accepted') {
+            hasAcceptedBid = true;
+            break;
+          } else if (bidData['status'] == 'pending') {
+            double currentBidAmount = bidData['amount'];
+            if (currentBidAmount > highestBid) {
+              highestBid = currentBidAmount;
+            }
+            shouldProceed = await _showBidExistsDialog(context, highestBid);
+          }
+        }
+
+        if (hasAcceptedBid) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('A bid has already been accepted for this date. No further bids are allowed.')),
+          );
+          return;
+        }
+
+        if (!shouldProceed) {
+          return;
+        }
       }
+
+      setState(() {
+        _dateController.text = formattedDate;
+      });
     }
+  }
+
+  Future<bool> _showBidExistsDialog(BuildContext context, double highestBid) async {
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Bid Already Exists'),
+          content: Text(
+              'A bid has already been placed for this date with the highest bid amount of GHC $highestBid. Do you want to proceed with a new bid?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Choose Another Date'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Proceed'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _placeBid(BuildContext context) async {
@@ -147,13 +183,6 @@ class __BidSectionState extends State<_BidSection> {
       return;
     }
 
-    if (_highestBid != null && bidAmount <= _highestBid!) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Your bid must be higher than the current highest bid'),
-      ));
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
@@ -165,6 +194,7 @@ class __BidSectionState extends State<_BidSection> {
         'amount': bidAmount,
         'intendedDate': intendedDate,
         'timestamp': Timestamp.now(),
+        'status': 'pending', // All new bids start as pending
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -172,10 +202,6 @@ class __BidSectionState extends State<_BidSection> {
       );
       _bidAmountController.clear();
       _dateController.clear();
-      setState(() {
-        _isDateSelected = false;
-        _highestBid = null;
-      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to place bid: $e')),
@@ -198,6 +224,20 @@ class __BidSectionState extends State<_BidSection> {
         ),
         const SizedBox(height: 10),
         TextField(
+          controller: _bidAmountController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: 'Bid Amount',
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
           controller: _dateController,
           readOnly: true,
           decoration: InputDecoration(
@@ -211,32 +251,6 @@ class __BidSectionState extends State<_BidSection> {
             suffixIcon: IconButton(
               icon: const Icon(Icons.calendar_today),
               onPressed: () => _selectDate(context),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        if (_isDateSelected) ...[
-          _highestBid != null
-              ? Text(
-            'Current Highest Bid: \$${_highestBid!.toStringAsFixed(2)}',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.red),
-          )
-              : const Text(
-            'No bids for the selected date.',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
-          ),
-          const SizedBox(height: 10),
-        ],
-        TextField(
-          controller: _bidAmountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: 'Bid Amount',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
             ),
           ),
         ),

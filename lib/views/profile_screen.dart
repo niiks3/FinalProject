@@ -1,14 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:project/views/events%20screen/new_event_screen.dart';
 import 'events screen/events_screen.dart';
 import 'Payouts/payouts_screen.dart';
 import 'settings/settings_screen.dart';
-import 'events screen/event_analytics.dart';
 import 'package:project/views/event_space_search_page.dart';
 import 'package:project/views/event_space_bid_management.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'BidForumScreen.dart';
+
 class ProfileScreen extends StatefulWidget {
   final String email;
 
@@ -31,18 +30,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   int _selectedIndex = 0;
-
+  int _currentCardIndex = 0;
+  late Timer _timer;
+  late List<_ShufflingCardData> _cardData;
   late List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
+
     _widgetOptions = [
-      ProfileDetails(email: widget.email, greeting: getGreeting()), // Pass greeting and email to ProfileDetails
+      ProfileDetails(email: widget.email, greeting: getGreeting()),
       const EventsScreen(),
       const PayoutsScreen(),
       const SettingsScreen(),
     ];
+
+    _cardData = [
+      _ShufflingCardData(
+        title: 'Create Event',
+        imageUrl:
+        'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg',
+        destination: NewEventScreen(),
+      ),
+      _ShufflingCardData(
+        title: 'Search Event Spaces',
+        imageUrl:
+        'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
+        destination: const EventSpaceSearchScreen(),
+      ),
+      _ShufflingCardData(
+        title: 'Bid Forum',
+        imageUrl:
+        'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
+        destination: const BidForumScreen(),
+      ),
+      _ShufflingCardData(
+        title: 'Manage Bids',
+        imageUrl:
+        'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
+        destination: const EventSpaceBidManagementScreen(),
+      ),
+    ];
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      setState(() {
+        _currentCardIndex = (_currentCardIndex + 1) % _cardData.length;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
@@ -54,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Extend the body behind the bottom navigation bar
+      extendBody: true,
       body: Stack(
         children: [
           Container(
@@ -69,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _selectedIndex == 0
               ? SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 100), // Add bottom padding
+            padding: const EdgeInsets.only(bottom: 100),
             child: Column(
               children: [
                 Container(
@@ -86,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     children: [
                       Text(
-                        '${getGreeting()} !',
+                        '${getGreeting()}!',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -104,7 +145,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                ProfileDetails(email: widget.email, greeting: getGreeting()),
+                const SizedBox(height: 20),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  alignment: Alignment.center,
+                  child: _buildShufflingCard(
+                      context, _cardData[_currentCardIndex]),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1), // Background color with some transparency
+                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Event Operations',
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10), // Padding between text and grid
+                _buildImageGrid(context),
               ],
             ),
           )
@@ -114,9 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(50),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(50)),
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -150,285 +221,202 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+  Widget _buildShufflingCard(
+      BuildContext context, _ShufflingCardData cardData) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.28,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(cardData.imageUrl),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => cardData.destination),
+              );
+            },
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade600,
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      cardData.title,
+                      style: const TextStyle(
+                        fontSize: 23,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageGrid(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(30.0),
+      child: GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        crossAxisSpacing: 1.0,
+        mainAxisSpacing: 5.0,
+        children: [
+          _buildGridItem(
+            context,
+            icon: Icons.event,
+            label: 'Create Event',
+            destination: NewEventScreen(),
+          ),
+          _buildGridItem(
+            context,
+            icon: Icons.location_on,
+            label: 'Search Venues',
+            destination: const EventSpaceSearchScreen(),
+          ),
+          _buildGridItem(
+            context,
+            icon: Icons.forum,
+            label: 'Bid Forum',
+            destination: const BidForumScreen(),
+          ),
+          _buildGridItem(
+            context,
+            icon: Icons.gavel,
+            label: 'Manage Bids',
+            destination: const EventSpaceBidManagementScreen(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridItem(BuildContext context,
+      {required IconData icon, required String label, required Widget destination}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destination),
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blueAccent,
+            ),
+            padding: const EdgeInsets.all(15),
+            child: Icon(
+              icon,
+              size: 70,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class ProfileDetails extends StatefulWidget {
+class ProfileDetails extends StatelessWidget {
   final String email;
   final String greeting;
 
   const ProfileDetails({super.key, required this.email, required this.greeting});
 
   @override
-  _ProfileDetailsState createState() => _ProfileDetailsState();
-}
-
-class _ProfileDetailsState extends State<ProfileDetails> {
-  int totalEvents = 0;
-  int upcomingEvents = 0;
-  double amountEarned = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _calculateProfileStatistics();
-  }
-
-  void _calculateProfileStatistics() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user == null) {
-        print('No user is currently logged in');
-        return;
-      }
-
-      print('Fetching events for user ID: ${user.uid}');
-
-      QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
-          .collection('events')
-          .where('userId', isEqualTo: user.uid)
-          .get();
-
-      if (eventsSnapshot.docs.isEmpty) {
-        print('No events found for user ID: ${user.uid}');
-      } else {
-        print('Events found for user ID: ${user.uid}');
-        for (var event in eventsSnapshot.docs) {
-          print('Event data: ${event.data()}');
-        }
-      }
-
-      DateTime now = DateTime.now();
-      int upcomingEventsCount = eventsSnapshot.docs.where((event) {
-        var data = event.data() as Map<String, dynamic>;
-        return data['eventDate'] != null && data['eventDate'].toDate().isAfter(now);
-      }).length;
-
-      setState(() {
-        totalEvents = eventsSnapshot.docs.length;
-        upcomingEvents = upcomingEventsCount;
-
-        // Placeholder for amountEarned calculation, update as needed
-        amountEarned = eventsSnapshot.docs.fold(0.0, (sum, event) {
-          var data = event.data() as Map<String, dynamic>;
-          return sum + (data['amountEarned']?.toDouble() ?? 0.0);
-        });
-
-        print('Total events: $totalEvents');
-        print('Upcoming events: $upcomingEvents');
-        print('Amount earned: $amountEarned');
-      });
-    } catch (e) {
-      print('Error calculating profile statistics: $e');
-      Fluttertoast.showToast(
-        msg: "Error calculating profile statistics",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return _buildProfileInfo(context, totalEvents, amountEarned, upcomingEvents);
-  }
-
-  Widget _buildProfileInfo(BuildContext context, int totalEvents, double amountEarned, int upcomingEvents) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 80),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildInfoCard(
-                    context,
-                    "Total Events",
-                    "assets/images/totalevents.png",
-                    totalEvents.toString(),
-                  ),
-                  _buildInfoCard(
-                    context,
-                    "Upcoming Events",
-                    "assets/images/upcoming.png",
-                    upcomingEvents.toString(),
-                  ),
-                  _buildInfoCard(
-                    context,
-                    "Amount Earned",
-                    "assets/images/currency.png",
-                    "GHc${amountEarned.toStringAsFixed(2)}",
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Divider(color: Colors.white, thickness: 1, indent: 50, endIndent: 50),
-          const Padding(
-            padding: EdgeInsets.all(15),
-            child: Text(
-              "Event Operations",
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          const Divider(color: Colors.white, thickness: 1, indent: 50, endIndent: 50),
-          _buildOperationCard(
-            context,
-            'Analytics',
-            'https://cdn.pixabay.com/photo/2023/11/21/17/28/market-analytics-8403845_960_720.png',
-            const EventAnalyticsScreen(),
-          ),
-          _buildOperationCard(
-            context,
-            'Search Event Spaces',
-            'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
-            const EventSpaceSearchScreen(),
-          ),
-          _buildOperationCard(
-            context,
-            'Bid Forum',
-            'https://cdn.pixabay.com/photo/2020/02/06/19/24/forum-4827715_960_720.jpg',
-            const BidForumScreen(),
-          ),
-          _buildOperationCard(
-            context,
-            'Manage Bids',
-            'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
-            const EventSpaceBidManagementScreen(),
-          ),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(BuildContext context, String title, String imagePath, String value) {
-    return Card(
-      elevation: 1,
-      color: Colors.white70,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.5,
-        height: MediaQuery.of(context).size.height * 0.1,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+        child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.15,
-                    height: double.maxFinite,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: AssetImage(imagePath),
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        value,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black26,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOperationCard(BuildContext context, String title, String imageUrl, Widget destination) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.9,
-        height: MediaQuery.of(context).size.height * 0.28,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(imageUrl),
-            fit: BoxFit.cover,
-          ),
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => destination),
-            );
-          },
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade600,
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 23,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+            CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.blueAccent,
+              child: Text(
+                email[0].toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 40,
+                  color: Colors.white,
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              '$greeting!',
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              email,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+class _ShufflingCardData {
+  final String title;
+  final String imageUrl;
+  final Widget destination;
+
+  _ShufflingCardData({
+    required this.title,
+    required this.imageUrl,
+    required this.destination,
+  });
+}

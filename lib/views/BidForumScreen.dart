@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // Import intl for date formatting
+import 'package:intl/intl.dart';
+import 'event_space_details_screen.dart';
 
 class BidForumScreen extends StatelessWidget {
   const BidForumScreen({super.key});
@@ -111,6 +112,31 @@ class BidPostList extends StatelessWidget {
                             DateFormat('yyyy-MM-dd HH:mm:ss').format(timestamp),
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
+                          const SizedBox(height: 10),
+                          if (postData['linkedSpaceId'] != null)
+                            TextButton(
+                              onPressed: () async {
+                                DocumentSnapshot spaceSnapshot = await FirebaseFirestore.instance
+                                    .collection('event_spaces')
+                                    .doc(postData['linkedSpaceId'])
+                                    .get();
+
+                                // Check if spaceSnapshot contains data
+                                if (spaceSnapshot.exists && spaceSnapshot.data() != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventSpaceDetailsScreen(eventSpace: spaceSnapshot),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('No data available for this space.')),
+                                  );
+                                }
+                              },
+                              child: const Text('View Linked Space'),
+                            ),
                         ],
                       ),
                     ),
@@ -154,6 +180,7 @@ class _BidPostInputState extends State<BidPostInput> {
       'author': user.email ?? 'Anonymous',
       'content': _controller.text,
       'timestamp': Timestamp.now(),
+      'linkedSpaceId': 'some-space-id', // Replace with actual logic to get the space ID
     });
 
     _controller.clear();

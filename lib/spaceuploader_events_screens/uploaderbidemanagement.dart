@@ -48,19 +48,21 @@ class UploaderBidManagementScreen extends StatelessWidget {
       // Fetch the bid data to get the bid date
       DocumentSnapshot bidSnapshot = await FirebaseFirestore.instance.collection('bids').doc(bidId).get();
       var bidData = bidSnapshot.data() as Map<String, dynamic>;
-      DateTime? bidDate = bidData['timestamp']?.toDate();
+      String? intendedDateStr = bidData['intendedDate'];
 
-      if (bidDate == null) {
+      if (intendedDateStr == null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bid date is not available.')));
         return;
       }
 
+      DateTime intendedDate = DateFormat('yyyy-MM-dd').parse(intendedDateStr);
+
       if (isAccepted) {
-        // Fetch all bids on the same date for this space
+        // Fetch all bids on the same intended date for this space
         QuerySnapshot otherBidsSnapshot = await FirebaseFirestore.instance
             .collection('bids')
             .where('spaceId', isEqualTo: spaceId)
-            .where('timestamp', isEqualTo: bidDate)
+            .where('intendedDate', isEqualTo: intendedDateStr)
             .get();
 
         // Update the status of all bids on the same date to 'declined'
@@ -154,21 +156,22 @@ class UploaderBidManagementScreen extends StatelessWidget {
 
                       var bids = bidSnapshot.data!.docs;
 
-                      // Group bids by date
-                      Map<DateTime, List<DocumentSnapshot>> groupedBids = {};
+                      // Group bids by intended date
+                      Map<String, List<DocumentSnapshot>> groupedBids = {};
                       for (var bid in bids) {
                         var bidData = bid.data() as Map<String, dynamic>;
-                        DateTime? bidDate = bidData['timestamp']?.toDate();
-                        if (bidDate != null) {
-                          if (!groupedBids.containsKey(bidDate)) {
-                            groupedBids[bidDate] = [];
+                        String? intendedDateStr = bidData['intendedDate'];
+                        if (intendedDateStr != null) {
+                          if (!groupedBids.containsKey(intendedDateStr)) {
+                            groupedBids[intendedDateStr] = [];
                           }
-                          groupedBids[bidDate]!.add(bid);
+                          groupedBids[intendedDateStr]!.add(bid);
                         }
                       }
 
                       return Column(
                         children: groupedBids.entries.map((entry) {
+                          DateTime intendedDate = DateFormat('yyyy-MM-dd').parse(entry.key);
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Container(
@@ -190,7 +193,7 @@ class UploaderBidManagementScreen extends StatelessWidget {
                                       ? Image.network(spaceData['imageUrls'][0], width: 50, height: 50, fit: BoxFit.cover)
                                       : const Icon(Icons.image, size: 50),
                                   title: Text(spaceData['title']),
-                                  subtitle: Text(DateFormat('yyyy-MM-dd').format(entry.key)),
+                                  subtitle: Text(DateFormat('yyyy-MM-dd').format(intendedDate)),
                                 ),
                                 children: entry.value.map((bid) {
                                   var bidData = bid.data() as Map<String, dynamic>;

@@ -41,6 +41,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true, // Extend the body behind the bottom navigation bar
       body: Stack(
         children: [
           Container(
@@ -53,31 +54,48 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
               ),
             ),
           ),
-          Positioned(
-            top: 100,
-            left: -50,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                color: const Color(0xff283048).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
+          _selectedIndex == 0
+              ? SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 100), // Add bottom padding
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 140,
+                  padding: const EdgeInsets.only(top: 50, bottom: 20),
+                  decoration: const BoxDecoration(
+                    color: Color(0xff2575fc),
+                    borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(30),
+                      bottomLeft: Radius.circular(30),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${SpaceUploaderProfileDetails(email: '',).getGreeting()}!',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Welcome back, hope you\'re feeling good today',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SpaceUploaderProfileDetails(email: widget.email),
+              ],
             ),
-          ),
-          Positioned(
-            top: 700,
-            right: -100,
-            child: Container(
-              width: 200,
-              height: 500,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade800.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          Center(
+          )
+              : Center(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
         ],
@@ -93,8 +111,8 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
               label: 'Profile',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.event),
-              label: 'My Spaces',
+              icon: Icon(Icons.location_on),
+              label: 'My Venues',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.attach_money),
@@ -106,9 +124,9 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.white,
-          backgroundColor: const Color(0xff283048),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.black,
+          backgroundColor: const Color(0xff2575fc), // Match with page color
           elevation: 5,
           onTap: _onItemTapped,
           type: BottomNavigationBarType.fixed,
@@ -164,26 +182,8 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              '${getGreeting()}!',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Text(
-              'Welcome back, hope you\'re feeling good today',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
-            ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 15,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -209,6 +209,7 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                       color: const Color(0xff283048),
                                     ),
+                                    child: const Icon(Icons.location_city, color: Colors.white),
                                   ),
                                   SizedBox(
                                     width: MediaQuery.of(context).size.width * 0.01,
@@ -252,21 +253,18 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                 textAlign: TextAlign.left,
               ),
             ),
-            // Add My Spaces card
             _buildOperationCard(
               context,
-              'My Spaces',
-              'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
+              'My Venues',
+              'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
               const ManageSpacesScreen(),
             ),
-            // Add Manage Bids card
             _buildOperationCard(
               context,
               'Manage Bids',
               'https://cdn.pixabay.com/photo/2017/10/11/11/43/multitasking-2840792_1280.jpg',
               const UploaderBidManagementScreen(),
             ),
-            // Add Bid Forum card
             _buildOperationCard(
               context,
               'Bid Forum',
