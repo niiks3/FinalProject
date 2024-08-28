@@ -18,12 +18,14 @@ import 'views/event_space_bid_management.dart';
 import 'spaceuploader_events_screens/add_space_screen.dart'; // Changed to add_space_screen.dart
 import 'spaceuploader_events_screens//manage_spaces_screen.dart';
 import 'spaceuploader_events_screens//space_uploader_event_analytics.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+
   runApp(const MyApp());
 }
 

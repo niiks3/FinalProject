@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:pay_with_paystack/pay_with_paystack.dart';
 import 'event_space_details_screen.dart';
 
 class EventSpaceBidManagementScreen extends StatelessWidget {
@@ -47,6 +48,38 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
               child: const Text('Place Bid'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handlePaystackPayment(BuildContext context, String bidId, double amount) async {
+    final uniqueTransRef = PayWithPayStack().generateUuidV4();
+    final email = FirebaseAuth.instance.currentUser?.email ?? '';
+
+    PayWithPayStack().now(
+      context: context,
+      secretKey: "sk_test_2130201c7d1582334fa9ebdf1a9ede41ca30e8ce",
+      customerEmail: email,
+      reference: uniqueTransRef,
+      callbackUrl: "",
+      currency: "GHS",
+      paymentChannel: ["mobile_money", "card"],
+      amount: (amount * 100).toDouble(),
+      transactionCompleted: () {
+        print("Transaction Successful");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment Successful!')),
+        );
+        // Update the bid status to 'paid'
+        FirebaseFirestore.instance.collection('bids').doc(bidId).update({
+          'status': 'Paid',
+        });
+      },
+      transactionNotCompleted: () {
+        print("Transaction Not Successful!");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment Failed!')),
         );
       },
     );
@@ -195,12 +228,25 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                               },
                               child: const Text('View Details'),
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                _placeHigherBid(context, bid.id, bidData['spaceId'], bidData['amount']);
-                              },
-                              child: const Text('Place Higher Bid'),
-                            ),
+                            if (bidData['status'] == 'accepted')
+                    ElevatedButton(
+                    onPressed: () {
+                    final bidAmount = bidData['amount'] is double
+                    ? bidData['amount']
+                        : double.tryParse(bidData['amount'].toString());
+
+                    if (bidAmount != null) {
+                    _handlePaystackPayment(context, bid.id, bidAmount);
+                    } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid bid amount')),
+                    );
+                    }
+                    },
+                    child: const Text('Pay Now'),
+                    ),
+
+
                           ],
                         ),
                       ),
