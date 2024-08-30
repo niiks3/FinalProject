@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts package
 import 'package:project/views/events%20screen/new_event_screen.dart';
 import 'events screen/events_screen.dart';
 import 'Payouts/payouts_screen.dart';
@@ -48,28 +49,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     _cardData = [
       _ShufflingCardData(
+        title: 'Welcome to Eventy',
+        imageUrl:
+        'https://cdn.pixabay.com/photo/2015/04/27/11/48/sign-741813_1280.jpg',
+      ),
+      _ShufflingCardData(
         title: 'Create Event',
         imageUrl:
         'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg',
-        destination: NewEventScreen(),
       ),
       _ShufflingCardData(
         title: 'Search Event Spaces',
         imageUrl:
         'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
-        destination: const EventSpaceSearchScreen(),
       ),
       _ShufflingCardData(
         title: 'Bid Forum',
         imageUrl:
         'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
-        destination: const BidForumScreen(),
       ),
       _ShufflingCardData(
         title: 'Manage Bids',
         imageUrl:
         'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
-        destination: const EventSpaceBidManagementScreen(),
       ),
     ];
 
@@ -177,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 10), // Padding between text and grid
-                _buildImageGrid(context),
+                _buildCardGrid(context),
               ],
             ),
           )
@@ -224,6 +226,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildShufflingCard(
       BuildContext context, _ShufflingCardData cardData) {
+    // Determine the text color based on the title
+    Color textColor = cardData.title == 'Bid Forum' ? Colors.black : Colors.white;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -245,39 +250,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => cardData.destination),
-              );
-            },
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade600,
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      cardData.title,
-                      style: const TextStyle(
-                        fontSize: 23,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.topLeft, // Align text to the top left
+              child: Text(
+                cardData.title,
+                style: GoogleFonts.openSans(
+                  fontSize: 28, // Increase font size
+                  fontWeight: FontWeight.bold,
+                  color: textColor, // Change color based on condition
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -285,37 +269,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildImageGrid(BuildContext context) {
+  Widget _buildCardGrid(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(30.0),
       child: GridView.count(
         shrinkWrap: true,
         crossAxisCount: 2,
-        crossAxisSpacing: 1.0,
-        mainAxisSpacing: 5.0,
+        crossAxisSpacing: 15.0,
+        mainAxisSpacing: 15.0,
         children: [
-          _buildGridItem(
+          _buildCardItem(
             context,
-            icon: Icons.event,
-            label: 'Create Event',
+            title: 'Create Event',
+            imageUrl: 'https://cdn.pixabay.com/photo/2017/11/24/10/43/ticket-2974645_1280.jpg',
             destination: NewEventScreen(),
           ),
-          _buildGridItem(
+          _buildCardItem(
             context,
-            icon: Icons.location_on,
-            label: 'Search Venues',
+            title: 'Search Venues',
+            imageUrl: 'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
             destination: const EventSpaceSearchScreen(),
           ),
-          _buildGridItem(
+          _buildCardItem(
             context,
-            icon: Icons.forum,
-            label: 'Bid Forum',
+            title: 'Bid Forum',
+            imageUrl: 'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
             destination: const BidForumScreen(),
           ),
-          _buildGridItem(
+          _buildCardItem(
             context,
-            icon: Icons.gavel,
-            label: 'Manage Bids',
+            title: 'Manage Bids',
+            imageUrl: 'https://cdn.pixabay.com/photo/2023/04/17/22/17/auction-7933637_1280.png',
             destination: const EventSpaceBidManagementScreen(),
           ),
         ],
@@ -323,8 +307,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildGridItem(BuildContext context,
-      {required IconData icon, required String label, required Widget destination}) {
+  Widget _buildCardItem(BuildContext context,
+      {required String title, required String imageUrl, required Widget destination}) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -332,30 +316,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
           MaterialPageRoute(builder: (context) => destination),
         );
       },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blueAccent,
-            ),
-            padding: const EdgeInsets.all(15),
-            child: Icon(
-              icon,
-              size: 70,
-              color: Colors.white,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(imageUrl),
+            fit: BoxFit.cover,
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.8),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(15),
+                  ),
+                ),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -412,11 +415,9 @@ class ProfileDetails extends StatelessWidget {
 class _ShufflingCardData {
   final String title;
   final String imageUrl;
-  final Widget destination;
 
   _ShufflingCardData({
     required this.title,
     required this.imageUrl,
-    required this.destination,
   });
 }

@@ -74,7 +74,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         return;
       }
 
-      // Extract parameters from the QR code string (not assuming it's a valid URI)
+      // Extract parameters from the QR code string
       Map<String, String> qrParams = {};
       List<String> pairs = qrData.split('&');
       for (var pair in pairs) {

@@ -9,17 +9,17 @@ class SpaceUploaderEventAnalyticsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Event Analytics'),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Event Analytics for Space Uploader',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            // Add your analytics widgets or charts here
-            // For now, we'll just add a placeholder
+            SizedBox(height: 20),
+
+
             Placeholder(
               fallbackHeight: 200,
               fallbackWidth: 200,

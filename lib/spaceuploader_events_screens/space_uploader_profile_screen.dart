@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project/spaceuploader_events_screens/manage_spaces_screen.dart';
@@ -18,18 +19,51 @@ class SpaceUploaderProfileScreen extends StatefulWidget {
 
 class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen> {
   int _selectedIndex = 0;
-
+  int _currentCardIndex = 0;
+  late Timer _timer;
+  late List<_ShufflingCardData> _cardData;
   late List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
+
     _widgetOptions = [
       SpaceUploaderProfileDetails(email: widget.email),
       const SpaceUploaderEventsScreen(),
       const PayoutsScreen(),
       const SettingsScreen(),
     ];
+
+    _cardData = [
+      _ShufflingCardData(
+        title: 'Manage Spaces',
+        imageUrl: 'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
+        destination: const ManageSpacesScreen(),
+      ),
+      _ShufflingCardData(
+        title: 'Manage Bids',
+        imageUrl: 'https://cdn.pixabay.com/photo/2017/10/11/11/43/multitasking-2840792_1280.jpg',
+        destination: const UploaderBidManagementScreen(),
+      ),
+      _ShufflingCardData(
+        title: 'Bid Forum',
+        imageUrl: 'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
+        destination: UploaderBidForumScreen(),
+      ),
+    ];
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      setState(() {
+        _currentCardIndex = (_currentCardIndex + 1) % _cardData.length;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
@@ -41,7 +75,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true, // Extend the body behind the bottom navigation bar
+      extendBody: true,
       body: Stack(
         children: [
           Container(
@@ -56,7 +90,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
           ),
           _selectedIndex == 0
               ? SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 100), // Add bottom padding
+            padding: const EdgeInsets.only(bottom: 100),
             child: Column(
               children: [
                 Container(
@@ -73,7 +107,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
                   child: Column(
                     children: [
                       Text(
-                        '${SpaceUploaderProfileDetails(email: '',).getGreeting()}!',
+                        '${SpaceUploaderProfileDetails(email: '').getGreeting()}!',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -91,7 +125,39 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
                     ],
                   ),
                 ),
-                SpaceUploaderProfileDetails(email: widget.email),
+                const SizedBox(height: 20),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  alignment: Alignment.center,
+                  child: _buildShufflingCard(
+                      context, _cardData[_currentCardIndex]),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1), // Background color with some transparency
+                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    'Space Operations',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10), // Padding between text and grid
+                _buildCardGrid(context),
               ],
             ),
           )
@@ -101,9 +167,7 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
         ],
       ),
       bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(50),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(50)),
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
@@ -133,6 +197,139 @@ class _SpaceUploaderProfileScreenState extends State<SpaceUploaderProfileScreen>
           showUnselectedLabels: false,
           iconSize: 30,
           selectedIconTheme: const IconThemeData(size: 40),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShufflingCard(
+      BuildContext context, _ShufflingCardData cardData) {
+    // Determine the text color based on the title
+    Color textColor = cardData.title == 'Bid Forum' ? Colors.black : Colors.white;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: MediaQuery.of(context).size.height * 0.28,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(cardData.imageUrl),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.topLeft, // Align text to the top left
+              child: Text(
+                cardData.title,
+                style: TextStyle(
+                  fontSize: 28, // Increase font size
+                  fontWeight: FontWeight.bold,
+                  color: textColor, // Change color based on condition
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardGrid(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(30.0),
+      child: GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        crossAxisSpacing: 15.0,
+        mainAxisSpacing: 15.0,
+        children: [
+          _buildCardItem(
+            context,
+            title: 'My Venues',
+            imageUrl: 'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
+            destination: const ManageSpacesScreen(),
+          ),
+          _buildCardItem(
+            context,
+            title: 'Manage Bids',
+            imageUrl: 'https://cdn.pixabay.com/photo/2017/10/11/11/43/multitasking-2840792_1280.jpg',
+            destination: const UploaderBidManagementScreen(),
+          ),
+          _buildCardItem(
+            context,
+            title: 'Bid Forum',
+            imageUrl: 'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
+            destination: UploaderBidForumScreen(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardItem(BuildContext context,
+      {required String title, required String imageUrl, required Widget destination}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destination),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(imageUrl),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.8),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(15),
+                  ),
+                ),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -245,95 +442,21 @@ class SpaceUploaderProfileDetails extends StatelessWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                "Space Operations",
-                style: TextStyle(color: Colors.black),
-                textAlign: TextAlign.left,
-              ),
-            ),
-            _buildOperationCard(
-              context,
-              'My Venues',
-              'https://cdn.pixabay.com/photo/2016/01/07/19/06/event-1126344_1280.jpg',
-              const ManageSpacesScreen(),
-            ),
-            _buildOperationCard(
-              context,
-              'Manage Bids',
-              'https://cdn.pixabay.com/photo/2017/10/11/11/43/multitasking-2840792_1280.jpg',
-              const UploaderBidManagementScreen(),
-            ),
-            _buildOperationCard(
-              context,
-              'Bid Forum',
-              'https://cdn.pixabay.com/photo/2015/02/22/17/46/forum-645246_1280.jpg',
-              UploaderBidForumScreen(),
-            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildOperationCard(BuildContext context, String title, String imageUrl, Widget destination) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.8,
-        height: MediaQuery.of(context).size.height * 0.3,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(imageUrl),
-            fit: BoxFit.cover,
-          ),
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => destination),
-            );
-          },
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade600,
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+class _ShufflingCardData {
+  final String title;
+  final String imageUrl;
+  final Widget destination;
+
+  _ShufflingCardData({
+    required this.title,
+    required this.imageUrl,
+    required this.destination,
+  });
 }

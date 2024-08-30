@@ -49,9 +49,15 @@ dependencies:
   file_picker: ^5.0.0
   webview_flutter: ^4.8.0
   pay_with_paystack: ^1.0.10
+  icons_launcher: ^2.1.7
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.13.1"
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon-1.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
