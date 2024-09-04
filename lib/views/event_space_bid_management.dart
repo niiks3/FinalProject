@@ -65,7 +65,7 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
       callbackUrl: "",
       currency: "GHS",
       paymentChannel: ["mobile_money", "card"],
-      amount: (amount * 100).toDouble(),
+      amount: (amount * 1).toDouble(),
       transactionCompleted: () {
         print("Transaction Successful");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,33 +151,35 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
               itemCount: bids.length,
               itemBuilder: (context, index) {
                 var bid = bids[index];
-                var bidData = bid.data() as Map<String, dynamic>;
+                var bidData = bid.data();
+
+                if (bidData == null) {
+                  return Container(); // Skip this bid if bidData is null
+                }
+
+                var bidMap = bidData as Map<String, dynamic>;
 
                 return FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance
                       .collection('spaces')
-                      .doc(bidData['spaceId'])
+                      .doc(bidMap['spaceId'])
                       .get(),
                   builder: (context, spaceSnapshot) {
                     if (spaceSnapshot.connectionState == ConnectionState.waiting) {
-                      return const ListTile(
-                        title: Text('Loading...'),
-                      );
+                      return Container(); // Skip loading space data
                     }
 
-                    if (spaceSnapshot.hasError) {
-                      return ListTile(
-                        title: Text('Error: ${spaceSnapshot.error}'),
-                      );
+                    if (spaceSnapshot.hasError || !spaceSnapshot.hasData || spaceSnapshot.data == null) {
+                      return Container(); // Skip this space if there's an error or no data
                     }
 
-                    if (!spaceSnapshot.hasData) {
-                      return const ListTile(
-                        title: Text('Space not found'),
-                      );
+                    var spaceData = spaceSnapshot.data?.data();
+
+                    if (spaceData == null) {
+                      return Container(); // Skip this space if spaceData is null
                     }
 
-                    var spaceData = spaceSnapshot.data!.data() as Map<String, dynamic>;
+                    var spaceMap = spaceData as Map<String, dynamic>;
 
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -188,13 +190,13 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                spaceData['imageUrls'] != null && spaceData['imageUrls'].isNotEmpty
-                                    ? Image.network(spaceData['imageUrls'][0], width: 50, height: 50, fit: BoxFit.cover)
+                                spaceMap['imageUrls'] != null && spaceMap['imageUrls'].isNotEmpty
+                                    ? Image.network(spaceMap['imageUrls'][0], width: 50, height: 50, fit: BoxFit.cover)
                                     : const Icon(Icons.image, size: 50),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    spaceData['title'],
+                                    spaceMap['title'],
                                     style: Theme.of(context).textTheme.headlineSmall,
                                   ),
                                 ),
@@ -202,16 +204,16 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Bid Amount: GH₵${bidData['amount']}',
+                              'Bid Amount: GH₵${bidMap['amount']}',
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              'Placed on: ${DateFormat('yyyy-MM-dd – kk:mm').format(bidData['timestamp'].toDate())}',
+                              'Placed on: ${DateFormat('yyyy-MM-dd – kk:mm').format(bidMap['timestamp'].toDate())}',
                               style: const TextStyle(fontSize: 14, color: Colors.grey),
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Status: ${bidData['status'] ?? 'Pending'}',
+                              'Status: ${bidMap['status'] ?? 'Pending'}',
                               style: const TextStyle(fontSize: 14, color: Colors.black),
                             ),
                             const SizedBox(height: 10),
@@ -228,25 +230,23 @@ class EventSpaceBidManagementScreen extends StatelessWidget {
                               },
                               child: const Text('View Details'),
                             ),
-                            if (bidData['status'] == 'accepted')
-                    ElevatedButton(
-                    onPressed: () {
-                    final bidAmount = bidData['amount'] is double
-                    ? bidData['amount']
-                        : double.tryParse(bidData['amount'].toString());
+                            if (bidMap['status'] == 'accepted')
+                              ElevatedButton(
+                                onPressed: () {
+                                  final bidAmount = bidMap['amount'] is double
+                                      ? bidMap['amount']
+                                      : double.tryParse(bidMap['amount'].toString());
 
-                    if (bidAmount != null) {
-                    _handlePaystackPayment(context, bid.id, bidAmount);
-                    } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invalid bid amount')),
-                    );
-                    }
-                    },
-                    child: const Text('Pay Now'),
-                    ),
-
-
+                                  if (bidAmount != null) {
+                                    _handlePaystackPayment(context, bid.id, bidAmount);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Invalid bid amount')),
+                                    );
+                                  }
+                                },
+                                child: const Text('Pay Now'),
+                              ),
                           ],
                         ),
                       ),

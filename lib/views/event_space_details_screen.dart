@@ -59,7 +59,7 @@ class EventSpaceDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Starting Bid: \$${startingBid.toStringAsFixed(2)}',
+              'Starting Bid: \₵${startingBid.toStringAsFixed(2)}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
